@@ -93,7 +93,7 @@
       --transition-standard: var(--duration-standard) var(--ease-standard);
       --transition-navigation: var(--duration-navigation) var(--ease-emphasized);
       --shadow-hover: 0 12px 28px rgba(27, 27, 31, .08);
-      --breadcrumb-top: 110px;
+      --nav-height: 72px;
 
       /* Legacy aliases kept while the active CSS is progressively unified. */
       --charcoal: var(--color-ink);
@@ -955,7 +955,9 @@
       width: 50px;
       height: 50px;
       object-fit: contain;
-      filter: brightness(0) saturate(100%) invert(48%) sepia(85%) saturate(3316%) hue-rotate(328deg) brightness(102%) contrast(102%);
+      /* Source artwork is black. This filter maps it to the brand coral
+         without the over-saturated red produced by the previous filter. */
+      filter: brightness(0) saturate(100%) invert(53%) sepia(66%) saturate(1302%) hue-rotate(310deg) brightness(104%) contrast(101%);
       transition: opacity 420ms var(--ease-emphasized), transform 420ms var(--ease-emphasized);
       will-change: opacity, transform;
     }
@@ -3249,12 +3251,12 @@
       margin-inline: auto;
     }
 
-    /* A fixed breadcrumb stays under the sticky navigation; the page reserves
-       exactly its height, so headers never need negative margins or JS padding. */
-    .page-content { padding: var(--breadcrumb-height) 0 76px; }
+    /* Keep the breadcrumb in document flow and let it stick beneath the
+       navigation. This avoids scroll-time JavaScript and visual jitter. */
+    .page-content { padding: 0 0 76px; }
     .breadcrumb-only {
-      position: fixed;
-      inset: var(--breadcrumb-top) 0 auto;
+      position: sticky;
+      top: var(--nav-height);
       z-index: 25;
       width: 100%;
       min-height: var(--breadcrumb-height);
@@ -3673,6 +3675,7 @@
     }
 
     @media (max-width: 850px) {
+      :root { --nav-height: 70px; }
       .nav-links,
       .nav-actions { display: none; }
       .nav-inner { min-height: 70px; justify-content: initial; gap: 8px; }
@@ -3711,8 +3714,11 @@
         --type-section-title: 22px;
         --breadcrumb-height: 44px;
         --section-space: 40px;
+        --duration-reveal: 480ms;
+        --duration-card-reveal: 400ms;
+        --duration-navigation: 240ms;
       }
-      .page-content { padding-top: var(--breadcrumb-height); padding-bottom: 56px; }
+      .page-content { padding-top: 0; padding-bottom: 56px; }
       .breadcrumb-only .breadcrumb { font-size: var(--type-label); gap: 6px; }
       .standard-page-header { padding: 26px 0 28px; }
       .standard-page-header h1 { margin-bottom: 6px; }
@@ -3758,7 +3764,9 @@
         scroll-snap-align: start;
       }
       .product-card { border-radius: 12px; }
-      .product-card-image { aspect-ratio: 1 / .74; }
+      /* Catalogue artwork is square. A square stage prevents the image from
+         shrinking into a landscape box with empty side gutters on phones. */
+      .product-card-image { aspect-ratio: 1; }
       .product-card-body { padding: 12px; }
       .product-category { margin-bottom: 6px; font-size: 9px; }
       .product-card-title { min-height: 2.6em; font-size: var(--type-card-title); }
@@ -3952,6 +3960,11 @@
     @media (max-width: 850px) {
       .mobile-menu-backdrop {
         display: block;
+        position: fixed;
+        inset: 0;
+        width: auto;
+        height: auto;
+        z-index: 29;
         opacity: 0;
         visibility: hidden;
         pointer-events: none;
@@ -3962,6 +3975,45 @@
         opacity: 1;
         visibility: visible;
         pointer-events: auto;
+      }
+    }
+
+    /* Touch has no hover state. Keep persistent hover styling for a mouse,
+       give category links a brief pressed response on touch, and avoid iOS
+       retaining a hover appearance after a tap. */
+    @media (hover: none) and (pointer: coarse) {
+      .home-category-card:hover { color: inherit; background: transparent; }
+      .home-category-card:active { background: var(--color-state-hover-surface); }
+      .home-category-card:active .category-icon-normal { opacity: 0; transform: scale(.94); }
+      .home-category-card:active .category-icon-active { opacity: 1; transform: scale(1); }
+      .product-card:hover { transform: none; border-color: var(--color-border); background: var(--color-surface); }
+      .product-card:active { background: var(--color-state-hover-surface); }
+      .home-need-card:hover,
+      .contact-clean-method:hover,
+      .contact-clean-need:hover { color: inherit; background: transparent; padding-left: 0; }
+      .mobile-menu a:hover:not(.is-active) { color: var(--charcoal); background: transparent; }
+      .mobile-menu .nav-link:hover:not(.is-active)::after { transform: scaleX(0); }
+      .btn-primary:hover { background: var(--color-brand); }
+      .btn-secondary:hover { color: var(--color-muted-strong); background: var(--color-surface); border-color: var(--color-border-control); }
+      .text-link:hover { color: var(--color-brand); }
+      .sort-trigger:hover,
+      .filter-trigger:hover { color: var(--charcoal); background: var(--color-surface); border-color: var(--color-border-control); }
+      .sort-option:hover:not(.is-active),
+      .filter-menu-option:hover:not(.is-active),
+      .filter-option:hover:not(.is-active) { color: var(--color-muted-strong); background: transparent; }
+      .page-button:hover:not(:disabled):not(.is-active) { color: var(--color-muted-strong); background: transparent; }
+      .floating-whatsapp:hover { transform: none; }
+      .floating-whatsapp:hover .fab-label { opacity: 0; }
+    }
+
+    /* Safari zooms the page whenever a focused form control is below 16px.
+       Keep visual labels compact, but retain a readable 16px input value. */
+    @supports (-webkit-touch-callout: none) {
+      @media (max-width: 767px) {
+        .search-input,
+        .contact-refined-contact-form .form-field input,
+        .contact-refined-contact-form .form-field textarea,
+        .pagination-go input { font-size: 16px; }
       }
     }
     /* Product filters use one card with bounded, scrollable option lists. */
@@ -4350,8 +4402,8 @@
               '<button class="mobile-menu-utility is-disabled" type="button" data-disabled-link aria-disabled="true"><span>Login</span><small>Coming soon</small></button>' +
               '<a class="mobile-menu-utility' + (active === 'cart' ? ' is-active' : '') + '" href="#/cart"><span>Cart</span></a>' +
             '</nav>' +
-            '<button class="mobile-menu-backdrop' + (state.menuOpen ? ' is-open' : '') + '" type="button" data-action="close-menu" aria-label="Close menu"></button>' +
-          '</header>';
+          '</header>' +
+          '<button class="mobile-menu-backdrop' + (state.menuOpen ? ' is-open' : '') + '" type="button" data-action="close-menu" aria-label="Close menu"></button>';
       }
 
       function navLink(href, label, isActive) {
@@ -4452,7 +4504,6 @@
             if (main) main.focus({ preventScroll: true });
           }, 0);
         }
-        updateAnnouncement();
         if (options.scrollTo === 'catalogue-top') window.setTimeout(scrollToCatalogueTop, 0);
       }
 
@@ -5021,40 +5072,6 @@
         }
       }
 
-      var breadcrumbFrame = 0;
-
-      function scheduleBreadcrumbPosition() {
-        if (breadcrumbFrame) return;
-        breadcrumbFrame = window.requestAnimationFrame(function () {
-          breadcrumbFrame = 0;
-          updateBreadcrumbPosition();
-        });
-      }
-
-      function updateBreadcrumbPosition() {
-        var nav = document.querySelector('.main-nav');
-        var root = document.documentElement;
-        if (!nav) {
-          root.style.removeProperty('--breadcrumb-top');
-          return;
-        }
-        root.style.setProperty('--breadcrumb-top', Math.max(0, nav.getBoundingClientRect().bottom) + 'px');
-      }
-
-      function updateAnnouncement() {
-        var bar = document.getElementById('announcement-bar');
-        if (bar) {
-          var shouldHide = window.scrollY > 24;
-          var isHidden = bar.classList.contains('is-hidden');
-          if (shouldHide !== isHidden) {
-            bar.classList.toggle('is-hidden', shouldHide);
-            window.setTimeout(updateBreadcrumbPosition, 220);
-          }
-        }
-        updateBreadcrumbPosition();
-        scheduleBreadcrumbPosition();
-      }
-
       function closeCustomDropdowns() {
         document.querySelectorAll('[data-sort-dropdown].is-open, [data-filter-dropdown].is-open').forEach(function (dropdown) {
           dropdown.classList.remove('is-open');
@@ -5252,12 +5269,10 @@
         document.body.classList.remove('menu-open');
         renderRoute();
       });
-      window.addEventListener('scroll', updateAnnouncement, { passive: true });
       window.addEventListener('resize', function () {
         if (window.innerWidth > 850 && state.menuOpen) {
           setMenuState(false);
         }
-        updateAnnouncement();
       }, { passive: true });
 
       function loadFallbackCatalogue() {
