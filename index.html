@@ -948,12 +948,45 @@
       background: transparent;
       border-radius: 0;
     }
-    .home-category-media img {
-      display: none;
+    .home-category-media img { display: block; }
+    .home-category-media .category-icon {
+      display: block;
+      grid-area: 1 / 1;
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+      filter: brightness(0) saturate(100%) invert(48%) sepia(85%) saturate(3316%) hue-rotate(328deg) brightness(102%) contrast(102%);
+      transition: opacity 420ms var(--ease-emphasized), transform 420ms var(--ease-emphasized);
+      will-change: opacity, transform;
+    }
+    .home-category-media .category-icon-active {
+      opacity: 0;
+      transform: scale(.94);
+    }
+    @media (hover: hover) and (pointer: fine) {
+      .home-category-card:hover .category-icon-normal,
+      .home-category-card:focus-visible .category-icon-normal {
+        opacity: 0;
+        transform: scale(.94);
+      }
+      .home-category-card:hover .category-icon-active,
+      .home-category-card:focus-visible .category-icon-active {
+        opacity: 1;
+        transform: scale(1);
+      }
     }
     .home-category-media .icon { width: 46px; height: 46px; stroke-width: 1.6; transition: transform var(--transition-fast); }
     @media (hover: hover) and (pointer: fine) {
       .home-category-card:hover .home-category-media .icon { transform: translateY(-2px); }
+    }
+    @media (max-width: 767px) {
+      .home-category-media .category-icon { width: 36px; height: 36px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .home-category-media .category-icon {
+        transition: none;
+        transform: none;
+      }
     }
     .home-category-content {
       min-width: 0;
@@ -1307,10 +1340,14 @@
     .detail-cart-btn::after {
       content: attr(data-tooltip);
       position: absolute;
-      left: calc(100% + 12px);
-      top: 50%;
+      top: auto;
+      right: auto;
+      bottom: calc(100% + 10px);
+      left: 50%;
+      box-sizing: border-box;
+      max-width: min(220px, calc(100vw - (var(--content-gutter) * 2)));
       padding: 8px 12px;
-      transform: translateY(-50%) translateX(-4px);
+      transform: translateX(-50%) translateY(4px);
       color: var(--color-ink);
       background: var(--color-surface);
       border: 1px solid var(--color-border);
@@ -1318,7 +1355,8 @@
       box-shadow: 0 8px 22px rgba(27,27,31,.1);
       font-size: 11px;
       font-weight: 700;
-      white-space: nowrap;
+      text-align: center;
+      white-space: normal;
       opacity: 0;
       pointer-events: none;
       transition: opacity var(--transition-standard), transform var(--transition-standard);
@@ -1326,7 +1364,7 @@
     .detail-cart-btn:hover::after,
     .detail-cart-btn:focus-visible::after {
       opacity: 1;
-      transform: translateY(-50%) translateX(0);
+      transform: translateX(-50%) translateY(0);
     }
     .spec-section { margin-top: 42px; }
     .spec-section h2 { font-size: 22px; }
@@ -2279,7 +2317,6 @@
     .about-refined-intro-media { overflow: hidden; margin: 0; background: var(--muted); border: 1px solid var(--border); }
     .about-refined-intro-media img { display: block; width: 100%; aspect-ratio: 1.38 / 1; object-fit: cover; object-position: center; }
     .about-refined-story,
-    .about-refined-why,
     .about-refined-store { padding: 64px 0; border-bottom: 1px solid var(--border); }
     .about-refined-story-grid { display: grid; grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); gap: 72px; max-width: 1000px; margin: 0 auto; }
     .about-refined-story-copy { padding-top: 2px; }
@@ -2291,17 +2328,15 @@
     .about-refined-offer-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border-top: 1px solid var(--border); }
     .about-refined-offer-list .about-clean-range-link { min-height: 78px; }
     .about-refined-why-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); max-width: 1000px; margin: 0 auto; border-top: 1px solid var(--border); }
-    .about-refined-why-item { padding: 22px 24px 20px 0; border-right: 1px solid var(--border); }
+    .about-refined-why-item { padding: 22px 24px 20px 0; }
     .about-refined-why-item:not(:first-child) { padding-left: 24px; }
-    .about-refined-why-item:last-child { border-right: 0; }
     .about-refined-why-item .icon { width: 28px; height: 28px; margin-bottom: 18px; color: var(--red); stroke-width: 1.7; }
     .about-refined-why-item strong { display: block; margin-bottom: 6px; font-size: 15px; }
     .about-refined-why-item p { margin: 0; color: var(--grey); font-size: 13px; line-height: 1.6; }
     .about-refined-why-layout { display: block; max-width: 1000px; margin: 0 auto; }
     .about-refined-why-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); border: 1px solid var(--border); }
-    .about-refined-why-list .about-refined-why-item { min-height: 152px; padding: 22px 24px 20px 0; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
-    .about-refined-why-list .about-refined-why-item:nth-child(even) { padding-left: 24px; border-right: 0; }
-    .about-refined-why-list .about-refined-why-item:nth-last-child(-n + 2) { border-bottom: 0; }
+    .about-refined-why-list .about-refined-why-item { min-height: 152px; padding: 22px 24px 20px 0; }
+    .about-refined-why-list .about-refined-why-item:nth-child(even) { padding-left: 24px; }
     .about-refined-why-list .about-refined-why-item,
     .about-refined-why-list .about-refined-why-item:nth-child(even) { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 28px 24px; text-align: center; }
     .about-refined-store .about-clean-store-grid { max-width: 1000px; }
@@ -2346,7 +2381,13 @@
     .contact-refined-contact-info > p { max-width: 360px; margin: 0; color: var(--grey); font-size: 15px; line-height: 1.7; }
     .contact-refined-contact-info .contact-clean-methods { margin-top: 30px; border-top: 1px solid var(--border); }
     .contact-refined-contact-info .contact-clean-method { grid-template-columns: 42px minmax(0, 1fr) 16px; gap: 14px; padding: 17px 0; }
-    .contact-refined-contact-info .contact-clean-method-icon { width: 40px; height: 40px; border-radius: 12px; }
+    .contact-refined-contact-info .contact-clean-method-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+    }
     .contact-refined-contact-info .contact-clean-method-icon .icon { width: 19px; height: 19px; }
     .contact-refined-contact-info .contact-clean-method strong { font-size: 14px; }
     .contact-refined-contact-info .contact-clean-method small { font-size: 13px; }
@@ -2382,13 +2423,10 @@
       .contact-refined-contact-form .form-field input { min-height: 42px; }
       .contact-refined-contact-form .form-field textarea { min-height: 108px; }
       .about-refined-why-grid { grid-template-columns: 1fr; }
-      .about-refined-why-item { padding: 22px 0; border-right: 0; border-bottom: 1px solid var(--border); }
+      .about-refined-why-item { padding: 22px 0; }
       .about-refined-why-item:not(:first-child) { padding-left: 0; }
-      .about-refined-why-item:last-child { border-bottom: 0; }
       .about-refined-why-list .about-refined-why-item,
-      .about-refined-why-list .about-refined-why-item:nth-child(even) { padding: 22px 0; border-right: 0; }
-      .about-refined-why-list .about-refined-why-item:nth-last-child(-n + 2) { border-bottom: 1px solid var(--border); }
-      .about-refined-why-list .about-refined-why-item:last-child { border-bottom: 0; }
+      .about-refined-why-list .about-refined-why-item:nth-child(even) { padding: 22px 0; }
       .contact-refined-information .contact-clean-methods { grid-template-columns: 1fr; }
       .contact-refined-information .contact-clean-method,
       .contact-refined-information .contact-clean-method:nth-child(even) { padding: 18px 0; border-right: 0; }
@@ -2409,8 +2447,7 @@
       .about-refined-why-list,
       .contact-refined-information .contact-clean-methods { grid-template-columns: 1fr; }
       .about-refined-why-list .about-refined-why-item,
-      .about-refined-why-list .about-refined-why-item:nth-child(even) { border-right: 0; border-bottom: 1px solid var(--border); }
-      .about-refined-why-list .about-refined-why-item:last-child { border-bottom: 0; }
+      .about-refined-why-list .about-refined-why-item:nth-child(even) { border: 0; }
       .contact-refined-information .contact-clean-method,
       .contact-refined-information .contact-clean-method:nth-child(even) { padding: 18px 0; border-right: 0; }
       .contact-refined-contact { padding: 34px 0 40px; }
@@ -2451,7 +2488,13 @@
       font-size: 15px;
     }
     .standard-page-header.has-divider { border-bottom: 1px solid var(--border); }
-    .about-refined .about-clean-intro { padding-top: 64px; }
+    /* The shared intro has its own top rule, but About already follows the
+       page-header divider. Removing the duplicate keeps this separator one
+       consistent pixel like the other pages. */
+    .about-refined .about-clean-intro {
+      padding-top: 64px;
+      border-top: 0;
+    }
     @media (max-width: 820px) {
       .standard-page-header { padding: 36px 24px 34px; }
     }
@@ -2735,6 +2778,12 @@
       .footer { padding: 48px 0 22px; }
       .footer-grid { gap: 26px; }
       .footer-bottom { margin-top: 34px; }
+    }
+    /* The final About/Contact sections meet the footer without an empty band. */
+    .about-refined-store,
+    .contact-refined .contact-clean-questions {
+      padding-bottom: 0;
+      border-bottom: 0;
     }
     /* Responsive component consistency */
     .product-grid { align-items: stretch; }
@@ -3266,6 +3315,14 @@
       text-transform: uppercase;
     }
 
+    /* One desktop-navigation model: logo left, links use the available
+       middle space, and utility icons remain at the right edge. */
+    @media (min-width: 851px) {
+      .nav-inner { justify-content: normal; }
+      .nav-links { display: flex; flex: 1 1 auto; min-width: 0; }
+      .nav-actions { display: flex; flex: 0 0 auto; }
+    }
+
     /* Homepage headings use a real grid, preventing the title/link collision. */
     .home-section { padding: var(--section-space) 0; }
     .home-section-heading {
@@ -3324,6 +3381,20 @@
       margin-top: 28px;
     }
     .detail-image { padding: 0; }
+
+    /* Product detail has its own horizontal layout. Keep every direct layout
+       boundary shrinkable so long product data never widens the page. */
+    .product-detail-page,
+    .product-detail-page .site-container,
+    .product-detail-page .detail-layout,
+    .product-detail-page .detail-panel,
+    .product-detail-page .detail-image,
+    .product-detail-page .spec-section,
+    .product-detail-page .related-section {
+      min-width: 0;
+      max-width: 100%;
+    }
+    .product-detail-page .detail-layout { width: 100%; }
 
     /* Cart is deliberately a lightweight status section, not a large card. */
     .cart-empty {
@@ -3451,12 +3522,33 @@
       padding: 0;
       border: 0;
     }
-    .contact-refined-contact-heading { grid-area: heading; padding-right: 24px; }
-    .contact-refined-contact-heading h2 { margin: 0 0 24px; }
-    .contact-refined-contact-info { display: block; grid-area: methods; padding-right: 24px; }
+    .contact-refined-contact-heading {
+      grid-area: heading;
+      padding-right: 24px;
+    }
+    .contact-refined-contact-heading h2 {
+      margin: 0 0 12px;
+    }
+    .contact-refined-contact-heading p {
+      max-width: 360px;
+      margin: 0;
+      color: var(--color-muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    .contact-refined-contact-info {
+      display: block;
+      grid-area: methods;
+      padding-right: 24px;
+    }
     .contact-refined-contact-info .contact-clean-methods {
       margin-top: 0;
       border-top: 1px solid var(--color-border);
+    }
+    @media (min-width: 901px) {
+      .contact-refined-contact-info .contact-clean-methods {
+        margin-top: -36px;
+      }
     }
     .contact-refined-contact-form {
       grid-area: form;
@@ -3472,7 +3564,37 @@
       :root { --content-gutter: 24px; --section-space: 56px; --type-page-title: 38px; }
       .home-category-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .home-featured-section .product-grid,
-      .related-section .related-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+      .related-section .related-grid {
+        display: flex;
+        grid-template-columns: none;
+        flex-wrap: nowrap;
+        width: 100%;
+        max-width: 100%;
+        align-items: stretch;
+        gap: 18px;
+        overflow-x: auto;
+        overscroll-behavior-inline: contain;
+        padding: 0 0 4px;
+        scroll-snap-type: x mandatory;
+        scrollbar-width: none;
+      }
+      .home-featured-section .product-grid::-webkit-scrollbar,
+      .related-section .related-grid::-webkit-scrollbar { display: none; }
+      .home-featured-section .product-card,
+      .related-section .related-grid .product-card {
+        flex: 0 0 calc((100% - 54px) / 4);
+        width: calc((100% - 54px) / 4);
+        min-width: calc((100% - 54px) / 4);
+        align-self: stretch;
+        height: auto;
+        scroll-snap-align: start;
+      }
+      .home-featured-section .product-card-body,
+      .related-section .related-grid .product-card-body {
+        display: flex;
+        flex: 1 1 auto;
+        min-height: 0;
+      }
       .products-page .catalogue-layout .product-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .home-need-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .about-refined-intro-grid,
@@ -3539,7 +3661,8 @@
       }
       .contact-refined-contact-heading,
       .contact-refined-contact-info { padding-right: 0; }
-      .contact-refined-contact-heading h2 { margin-bottom: 26px; text-align: center; }
+      .contact-refined-contact-heading p { display: none; }
+      .contact-refined-contact-heading h2 { margin-bottom: 12px; text-align: center; }
       .contact-refined-contact-form {
         padding: 26px 0 28px;
         border: 0;
@@ -3669,7 +3792,7 @@
       .products-page .filter-list-scroll { max-height: 280px; }
 
       .contact-refined-contact { padding: var(--section-space) 0; }
-      .contact-refined-contact-heading h2 { margin-bottom: 22px; }
+      .contact-refined-contact-heading h2 { margin-bottom: 12px; }
       .contact-refined-contact-form { padding: 22px 0 24px; }
       .contact-refined-contact-form form { gap: 12px; }
       .contact-refined-contact-form .form-row { grid-template-columns: 1fr; gap: 12px; }
@@ -3764,6 +3887,137 @@
       }
       .product-card-body { padding: 10px; }
       .product-card-title { font-size: 12px; }
+    }
+
+    /* Canonical borders for the service highlights and About feature grid. */
+    .home-need-grid > .home-need-card {
+      border-left: 0;
+      border-top: 0;
+    }
+    .home-need-grid > .home-need-card:nth-child(even) {
+      border-left: 1px solid var(--color-border);
+    }
+    .home-need-grid > .home-need-card:nth-child(n + 3) {
+      border-top: 1px solid var(--color-border);
+    }
+    .about-refined-why-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0;
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+    }
+    .about-refined-why {
+      padding: 64px 0;
+      border-bottom: 0;
+    }
+    .about-refined-why-list > .about-refined-why-item,
+    .about-refined-why-list > .about-refined-why-item:nth-child(even),
+    .about-refined-why-list > .about-refined-why-item:nth-last-child(-n + 2) {
+      border-right: 0;
+      border-bottom: 0;
+      background: var(--color-surface);
+    }
+    .about-refined-why-list > .about-refined-why-item:nth-child(odd) {
+      border-right: 1px solid var(--color-border);
+    }
+    .about-refined-why-list > .about-refined-why-item:nth-child(-n + 2) {
+      border-bottom: 1px solid var(--color-border);
+    }
+    @media (min-width: 1200px) {
+      .home-need-grid > .home-need-card:nth-child(even) {
+        border-left: 0;
+      }
+      .home-need-grid > .home-need-card:nth-child(n + 2) {
+        border-left: 1px solid var(--color-border);
+      }
+      .home-need-grid > .home-need-card:nth-child(n + 3) {
+        border-top: 0;
+      }
+    }
+    @media (max-width: 767px) {
+      .about-refined-why-list {
+        grid-template-columns: 1fr;
+      }
+      .about-refined-why-list > .about-refined-why-item,
+      .about-refined-why-list > .about-refined-why-item:nth-child(odd),
+      .about-refined-why-list > .about-refined-why-item:nth-child(-n + 2) {
+        border-right: 0 !important;
+        border-bottom: 1px solid var(--color-border) !important;
+      }
+      .about-refined-why-list > .about-refined-why-item:last-child {
+        border-bottom: 0 !important;
+      }
+    }
+    .mobile-menu-backdrop { display: none; }
+    @media (max-width: 850px) {
+      .mobile-menu-backdrop {
+        display: block;
+        opacity: 0;
+        visibility: hidden;
+        pointer-events: none;
+        background: rgba(24,26,32,.22);
+        transition: opacity var(--transition-navigation), visibility var(--transition-navigation);
+      }
+      .mobile-menu-backdrop.is-open {
+        opacity: 1;
+        visibility: visible;
+        pointer-events: auto;
+      }
+    }
+    /* Product filters use one card with bounded, scrollable option lists. */
+    .filter-card-combined .filter-section + .filter-section {
+      margin-top: 18px;
+      padding-top: 18px;
+      border-top: 1px solid var(--color-border);
+    }
+    .filter-card-combined .filter-title {
+      margin-bottom: 10px;
+    }
+    .filter-card-combined .filter-category-list,
+    .filter-card-combined .filter-brand-options,
+    .filter-card-combined .filter-technical-section .filter-options {
+      overflow-y: auto;
+      scrollbar-gutter: stable;
+    }
+    .filter-card-combined .filter-category-list {
+      max-height: 284px;
+    }
+    .filter-card-combined .filter-brand-options,
+    .filter-card-combined .filter-technical-section .filter-options {
+      max-height: 204px;
+    }
+    .filter-card-combined .filter-technical-section .filter-options {
+      max-height: 128px;
+    }
+    .filter-card-combined .filter-brand-options {
+      left: 0;
+      right: 0;
+    }
+    .filter-brand-option {
+      justify-content: flex-start;
+      cursor: pointer;
+    }
+    .filter-brand-option-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .filter-brand-option input {
+      width: 14px;
+      height: 14px;
+      margin: 0;
+      accent-color: var(--color-brand);
+    }
+    .filter-card-combined > .filter-clear {
+      width: 100%;
+      margin-top: 18px;
+    }
+    .filter-card-combined .filter-technical-section .filter-dropdown + .filter-dropdown {
+      margin-top: 10px;
+    }
+    .filter-dropdown.opens-up .filter-options {
+      top: auto;
+      bottom: calc(100% + 6px);
     }
   </style>
 </head>
@@ -3880,6 +4134,18 @@
         'primary-hvac-pumps-machinery': 'snowflake',
         'primary-safety-ppe': 'shield',
         'primary-other-specialty': 'grid'
+      };
+      var categoryImageMap = {
+        'primary-lighting': 'lighting',
+        'primary-fans-ventilation': 'fans',
+        'primary-cables-wiring': 'cables',
+        'primary-conduit-cable-management': 'conduit',
+        'primary-switches-sockets': 'switches',
+        'primary-protection-distribution': 'protection',
+        'primary-industrial-control': 'industrial',
+        'primary-test-measurement': 'testing',
+        'primary-tools-hardware': 'tools',
+        'primary-earthing-utility': 'earthing'
       };
       var brandAssets = {
         '3M': '3m.svg',
@@ -4044,6 +4310,7 @@
         var toggle = document.querySelector('[data-action="toggle-menu"]');
         var glyph = toggle ? toggle.querySelector('.menu-toggle-glyph') : null;
         var menu = document.getElementById('mobile-navigation');
+        var backdrop = document.querySelector('.mobile-menu-backdrop');
 
         if (toggle) {
           toggle.setAttribute('aria-expanded', state.menuOpen ? 'true' : 'false');
@@ -4054,6 +4321,7 @@
           menu.classList.toggle('is-open', state.menuOpen);
           menu.setAttribute('aria-hidden', state.menuOpen ? 'false' : 'true');
         }
+        if (backdrop) backdrop.classList.toggle('is-open', state.menuOpen);
       }
 
       function renderHeader(route) {
@@ -4079,9 +4347,10 @@
               navLink('#/products', 'Products', active === 'products' || active === 'product') +
               navLink('#/about', 'About Us', active === 'about') +
               navLink('#/contact', 'Contact', active === 'contact') +
-              '<button class="mobile-menu-utility is-disabled" type="button" data-disabled-link aria-disabled="true">' + icon('user') + '<span>Login</span><small>Coming soon</small></button>' +
-              '<a class="mobile-menu-utility' + (active === 'cart' ? ' is-active' : '') + '" href="#/cart">' + icon('cart') + '<span>Cart</span></a>' +
+              '<button class="mobile-menu-utility is-disabled" type="button" data-disabled-link aria-disabled="true"><span>Login</span><small>Coming soon</small></button>' +
+              '<a class="mobile-menu-utility' + (active === 'cart' ? ' is-active' : '') + '" href="#/cart"><span>Cart</span></a>' +
             '</nav>' +
+            '<button class="mobile-menu-backdrop' + (state.menuOpen ? ' is-open' : '') + '" type="button" data-action="close-menu" aria-label="Close menu"></button>' +
           '</header>';
       }
 
@@ -4243,8 +4512,12 @@
       }
 
       function homepageCategoryCard(item) {
+        var categoryAsset = categoryImageMap[item.id];
+        var categoryMedia = categoryAsset
+          ? '<img class="category-icon category-icon-normal" src="assets/category/normal/' + categoryAsset + '-normal.png" alt="" aria-hidden="true" decoding="async"><img class="category-icon category-icon-active" src="assets/category/active/' + categoryAsset + '-active.png" alt="" aria-hidden="true" decoding="async">'
+          : icon(categoryIconMap[item.id] || 'grid');
         return '<a class="home-category-card" href="#/products?category=' + encodeURIComponent(item.id) + '">' +
-          '<span class="home-category-media">' + icon(categoryIconMap[item.id] || 'grid') + '</span>' +
+          '<span class="home-category-media">' + categoryMedia + '</span>' +
           '<span class="home-category-content"><strong>' + escapeHtml(item.label) + '</strong></span>' +
         '</a>';
       }
@@ -4321,6 +4594,13 @@
         document.querySelectorAll('[data-brand-filter]').forEach(function (checkbox) {
           checkbox.checked = state.filters.brands.indexOf(checkbox.dataset.brandFilter) !== -1;
         });
+        var brandTriggerLabel = document.querySelector('[data-brand-filter-trigger] .filter-trigger-label');
+        if (brandTriggerLabel) {
+          var selectedBrands = state.filters.brands.map(function (brandId) {
+            return (state.catalog.brands || []).find(function (brand) { return brand.id === brandId; });
+          }).filter(Boolean);
+          brandTriggerLabel.textContent = selectedBrands.length === 0 ? 'All brands' : (selectedBrands.length === 1 ? selectedBrands[0].name : selectedBrands.length + ' brands selected');
+        }
         var sortTriggerLabel = document.querySelector('.sort-trigger-label');
         if (sortTriggerLabel) sortTriggerLabel.textContent = sortLabel(state.filters.sort);
         document.querySelectorAll('[data-sort-value]').forEach(function (option) {
@@ -4375,19 +4655,34 @@
         });
       }
 
+      function renderBrandFilterDropdown(brands) {
+        var selectedBrands = state.filters.brands.map(function (brandId) {
+          return brands.find(function (brand) { return brand.id === brandId; });
+        }).filter(Boolean);
+        var selectedLabel = selectedBrands.length === 0 ? 'All brands' : (selectedBrands.length === 1 ? selectedBrands[0].name : selectedBrands.length + ' brands selected');
+        return '<div class="filter-dropdown filter-brand-dropdown" data-filter-dropdown>' +
+          '<button class="filter-trigger" type="button" data-filter-trigger data-brand-filter-trigger aria-haspopup="listbox" aria-expanded="false" aria-controls="brand-filter-options" aria-label="Brand filter"><span class="filter-trigger-label">' + escapeHtml(selectedLabel) + '</span>' + icon('chevronDown') + '</button>' +
+          '<div class="filter-options filter-brand-options" id="brand-filter-options" role="group" aria-label="Brands">' + brands.map(function (brand) {
+            var checked = state.filters.brands.indexOf(brand.id) !== -1;
+            return '<label class="filter-menu-option filter-brand-option"><span class="filter-brand-option-label"><input type="checkbox" data-brand-filter="' + escapeHtml(brand.id) + '"' + (checked ? ' checked' : '') + '><span>' + escapeHtml(brand.name) + '</span></span></label>';
+          }).join('') + '</div>' +
+        '</div>';
+      }
+
       function renderFilters() {
         var categories = state.catalog.categories || [];
         var brands = state.catalog.brands || [];
         var technical = technicalOptions();
-        return '<div class="filter-card"><div class="filter-title"><span>Categories</span></div><div class="filter-list filter-list-scroll"><button class="filter-option' + (state.filters.category === 'all' ? ' is-active' : '') + '" type="button" data-filter-category="all">All Products</button>' + categories.map(function (category) {
-          return '<button class="filter-option' + (state.filters.category === category.id ? ' is-active' : '') + '" type="button" data-filter-category="' + category.id + '">' + escapeHtml(categoryLabels[category.id] || category.name) + '</button>';
-        }).join('') + '</div><button class="btn btn-secondary filter-clear filter-clear-desktop" type="button" data-action="clear-filters">Clear All</button></div>' +
-        '<div class="filter-card"><div class="filter-title"><span>Brands</span></div><div class="filter-list filter-list-scroll">' + brands.map(function (brand) {
-          var checked = state.filters.brands.indexOf(brand.id) !== -1;
-          return '<label class="filter-option"><input type="checkbox" data-brand-filter="' + escapeHtml(brand.id) + '"' + (checked ? ' checked' : '') + '> ' + escapeHtml(brand.name) + '</label>';
-        }).join('') + '</div></div>' +
-        (technical.keys.length ? '<div class="filter-card"><div class="filter-title"><span>Technical Filters</span></div>' + renderFilterDropdown('tech-key', 'tech-key', state.filters.techKey, [{ value: '', label: 'All technical fields' }].concat(technical.keys.map(function (key) { return { value: key, label: formatLabel(key) }; })), 'Technical field') + (state.filters.techKey ? renderFilterDropdown('tech-value', 'tech-value', state.filters.techValue, [{ value: '', label: 'All values' }].concat(technical.values.map(function (value) { return { value: value, label: value }; })), 'Technical value') : '') + '</div>' : '') +
-        '<div class="filter-mobile-actions"><button class="btn btn-primary" type="button" data-action="apply-filters">Apply Filters</button><button class="btn btn-secondary" type="button" data-action="clear-filters">Clear All</button></div>';
+        var technicalMarkup = technical.keys.length ? '<div class="filter-section filter-technical-section"><div class="filter-title"><span>Technical Filters</span></div>' + renderFilterDropdown('tech-key', 'tech-key', state.filters.techKey, [{ value: '', label: 'All technical fields' }].concat(technical.keys.map(function (key) { return { value: key, label: formatLabel(key) }; })), 'Technical field') + (state.filters.techKey ? renderFilterDropdown('tech-value', 'tech-value', state.filters.techValue, [{ value: '', label: 'All values' }].concat(technical.values.map(function (value) { return { value: value, label: value }; })), 'Technical value') : '') + '</div>' : '';
+        return '<div class="filter-card filter-card-combined">' +
+          '<div class="filter-section filter-category-section"><div class="filter-title"><span>Categories</span></div><div class="filter-list filter-list-scroll filter-category-list"><button class="filter-option' + (state.filters.category === 'all' ? ' is-active' : '') + '" type="button" data-filter-category="all">All Products</button>' + categories.map(function (category) {
+            return '<button class="filter-option' + (state.filters.category === category.id ? ' is-active' : '') + '" type="button" data-filter-category="' + category.id + '">' + escapeHtml(categoryLabels[category.id] || category.name) + '</button>';
+          }).join('') + '</div></div>' +
+          '<div class="filter-section filter-brand-section"><div class="filter-title"><span>Brands</span></div>' + renderBrandFilterDropdown(brands) + '</div>' +
+          technicalMarkup +
+          '<button class="btn btn-secondary filter-clear filter-clear-desktop" type="button" data-action="clear-filters">Clear All</button>' +
+          '<div class="filter-mobile-actions"><button class="btn btn-primary" type="button" data-action="apply-filters">Apply Filters</button><button class="btn btn-secondary" type="button" data-action="clear-filters">Clear All</button></div>' +
+        '</div>';
       }
 
       function renderActiveFilters() {
@@ -4541,7 +4836,7 @@
         var whatsapp = config.contact.whatsappUrl ? '<a class="btn detail-whatsapp-btn" href="' + escapeHtml(config.contact.whatsappUrl) + '" target="_blank" rel="noopener">' + brandIcon('whatsapp') + ' WhatsApp</a>' : '<button class="btn btn-disabled" type="button" disabled>WhatsApp unavailable</button>';
         var cartButton = '<button class="btn detail-cart-btn" type="button" data-disabled-link data-tooltip="Cart is not available yet." aria-disabled="true">Add to Cart</button>';
         var description = product.description || product.short_description || '';
-        return '<div class="page-content">' + renderBreadcrumb([
+        return '<div class="page-content product-detail-page">' + renderBreadcrumb([
           { label: 'Home', href: '#/' },
           { label: 'Products', href: '#/products' },
           { label: shortCategoryName(product.category_id), href: '#/products?category=' + encodeURIComponent(product.category_id) },
@@ -4568,7 +4863,7 @@
           '<section class="about-refined-story" id="about-our-story"><div class="site-container"><div class="home-section-heading"><h2>OUR STORY</h2></div><div class="about-refined-story-grid"><div class="about-refined-story-copy"><p>AMF Mart is a local electrical shop based in Kampung Raja, Terengganu. We provide practical electrical products and accessories for everyday needs, from home improvements and repairs to work on site.</p><p>Our range includes lighting, fans, cables, switches, sockets, protective devices and tools for installation, maintenance and improvement work. These products are suitable for homeowners, contractors, technicians, workplaces and businesses.</p><p>We aim to make it easier for customers to find suitable electrical essentials and receive straightforward assistance when choosing the right product for the job.</p></div></div></div></section>' +
           '<section class="about-refined-why" id="about-why-choose-us"><div class="site-container"><div class="home-section-heading"><h2>WHY CHOOSE US</h2></div><div class="about-refined-why-layout"><div class="about-refined-why-list"><article class="about-refined-why-item">' + icon('store') + '<strong>Local and accessible</strong><p>Based in Kampung Raja for nearby electrical needs.</p></article><article class="about-refined-why-item">' + icon('bolt') + '<strong>A practical product range</strong><p>Electrical essentials for home, work and maintenance.</p></article><article class="about-refined-why-item">' + icon('home') + '<strong>For home and work</strong><p>Suitable for homeowners, contractors, technicians and businesses.</p></article><article class="about-refined-why-item">' + icon('phone') + '<strong>Straightforward assistance</strong><p>Ask about product details, specifications or availability.</p></article></div></div></div></section>' +
           '<section class="about-refined-store" id="about-our-location"><div class="site-container"><div class="home-section-heading"><h2>OUR LOCATION</h2></div><div class="about-location-grid"><div class="about-location-copy"><p class="about-location-intro">Visit us in Kampung Raja, Terengganu for your electrical needs.</p><div class="about-location-address">' + icon('pin') + '<div><strong>Location</strong><p>' + escapeHtml(locationAddress) + '</p></div></div><div class="about-location-hours"><div class="about-clean-store-detail">' + icon('clock') + '<span><strong>Opening hours</strong><small>' + escapeHtml([config.location.hours.days, config.location.hours.time].filter(Boolean).join(' · ')) + '</small><small>' + escapeHtml(config.location.hours.closed) + '</small></span></div></div></div><div class="about-location-map"><iframe src="' + escapeHtml(locationEmbedUrl) + '" title="' + escapeHtml(config.store.name) + ' location on Google Maps" loading="lazy" referrerpolicy="no-referrer"></iframe></div></div></div></section>' +
-        '</div>';
+          '</div>';
       }
 
       function renderContactMethod(iconName, label, value, href, opensNewWindow) {
@@ -4585,7 +4880,7 @@
         return '<div class="page-content contact-page contact-refined">' +
           renderBreadcrumb([{ label: 'Home', href: '#/' }, { label: 'Contact' }]) +
           renderPageHeader(pageHeaders.contact) +
-          '<section class="contact-clean-form contact-refined-contact" id="contact-information"><div class="site-container"><div class="contact-refined-contact-grid"><div class="contact-refined-contact-heading"><h2>GET IN TOUCH</h2></div><div class="contact-refined-contact-form"><form id="contact-message-form-element"><div class="form-row"><div class="form-field"><label for="contact-name">Name</label><input id="contact-name" name="name" type="text" autocomplete="name" placeholder="Your name" required></div><div class="form-field"><label for="contact-email">Email</label><input id="contact-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></div></div><div class="form-field"><label for="contact-subject">Subject</label><input id="contact-subject" name="subject" type="text" placeholder="Product enquiry" required></div><div class="form-field"><label for="contact-message">Message</label><textarea id="contact-message" name="message" rows="5" placeholder="Product name, model or what you need to know" required></textarea></div><div class="cta-actions"><button class="btn btn-primary" type="submit">Submit ' + icon('arrow') + '</button><p class="contact-form-status" id="contact-form-status" aria-live="polite"></p></div></form></div><div class="contact-refined-contact-info"><div class="contact-clean-methods">' + phone + email + location + '</div></div></div></div></section>' +
+          '<section class="contact-clean-form contact-refined-contact" id="contact-information"><div class="site-container"><div class="contact-refined-contact-grid"><div class="contact-refined-contact-heading"><h2>GET IN TOUCH</h2><p>Have a question about a product? Contact AMF Mart for details, specifications or availability.</p></div><div class="contact-refined-contact-form"><form id="contact-message-form-element"><div class="form-row"><div class="form-field"><label for="contact-name">Name</label><input id="contact-name" name="name" type="text" autocomplete="name" placeholder="Your name" required></div><div class="form-field"><label for="contact-email">Email</label><input id="contact-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></div></div><div class="form-field"><label for="contact-subject">Subject</label><input id="contact-subject" name="subject" type="text" placeholder="Product enquiry" required></div><div class="form-field"><label for="contact-message">Message</label><textarea id="contact-message" name="message" rows="5" placeholder="Product name, model or what you need to know" required></textarea></div><div class="cta-actions"><button class="btn btn-primary" type="submit">Submit ' + icon('arrow') + '</button><p class="contact-form-status" id="contact-form-status" aria-live="polite"></p></div></form></div><div class="contact-refined-contact-info"><div class="contact-clean-methods">' + phone + email + location + '</div></div></div></div></section>' +
           '<section class="contact-clean-questions" id="contact-questions"><div class="site-container"><div class="home-section-heading"><h2>QUICK QUESTIONS</h2></div><div class="contact-clean-questions-list"><details><summary>What should I include in an enquiry?</summary><p>Share the product name, model, brand or a short description of what you need.</p></details><details><summary>How can I ask about a product?</summary><p>Use the contact details or message form above and include the product information you have.</p></details><details><summary>When is AMF Mart open?</summary><p>AMF Mart is open Saturday to Thursday from 8:30 AM to 5:30 PM. Friday is closed.</p></details></div></div></section>' +
         '</div>';
       }
@@ -4649,13 +4944,13 @@
           });
         }
 
-        prepare('.home-section-heading, .brand-marquee, .detail-layout, .spec-section, .related-section, .cart-empty, .about-refined-intro-grid, .about-refined-story-copy, .about-refined-why-layout, .about-location-grid, .contact-refined-contact-grid, .contact-clean-questions-list, .empty-state', 'motion-reveal', 55, 3);
-        prepare('.about-refined-why-item, .contact-clean-method, .contact-clean-questions-list details', 'motion-stagger', 95, 4);
+        prepare('.home-section-heading, .brand-marquee, .detail-layout, .spec-section, .related-section, .cart-empty, .about-refined-intro-grid, .about-refined-story-copy, .about-refined-why-layout, .about-location-grid, .contact-refined-contact-grid, .empty-state', 'motion-reveal', 55, 3);
+        prepare('.contact-clean-method, .contact-clean-questions-list details', 'motion-stagger', 95, 4);
         var needCards = main.querySelectorAll('.home-need-card');
         Array.prototype.forEach.call(needCards, function (element, index) {
           element.classList.remove('is-revealed');
           element.classList.add('motion-stagger');
-          var columns = window.innerWidth <= 560 ? 2 : (window.innerWidth <= 820 ? 1 : (window.innerWidth <= 1100 ? 2 : 4));
+          var columns = window.innerWidth <= 1199 ? 2 : 4;
           var row = Math.floor(index / columns);
           var column = index % columns;
           var rowOrder = columns - 1 - column;
@@ -4763,9 +5058,22 @@
       function closeCustomDropdowns() {
         document.querySelectorAll('[data-sort-dropdown].is-open, [data-filter-dropdown].is-open').forEach(function (dropdown) {
           dropdown.classList.remove('is-open');
+          dropdown.classList.remove('opens-up');
           var trigger = dropdown.querySelector('[data-sort-trigger], [data-filter-trigger]');
           if (trigger) trigger.setAttribute('aria-expanded', 'false');
         });
+      }
+
+      function positionFilterDropdown(dropdown, trigger) {
+        if (!dropdown || !trigger) return;
+        var options = dropdown.querySelector('.filter-options');
+        if (!options) return;
+        var triggerRect = trigger.getBoundingClientRect();
+        var optionsHeight = options.getBoundingClientRect().height;
+        var availableAbove = triggerRect.top - 12;
+        var availableBelow = window.innerHeight - triggerRect.bottom - 12;
+        var shouldOpenUp = availableBelow < optionsHeight + 8 && availableAbove >= optionsHeight + 8;
+        dropdown.classList.toggle('opens-up', shouldOpenUp);
       }
 
       document.addEventListener('click', function (event) {
@@ -4803,6 +5111,7 @@
           if (customDropdown && shouldOpen) {
             customDropdown.classList.add('is-open');
             customTrigger.setAttribute('aria-expanded', 'true');
+            if (customDropdown.matches('[data-filter-dropdown]')) positionFilterDropdown(customDropdown, customTrigger);
           }
           return;
         }
