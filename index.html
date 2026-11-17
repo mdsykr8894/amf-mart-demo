@@ -5,11 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta id="site-description" name="description" content="AMF Mart electrical product catalogue for home use, technical work and business needs.">
   <title>AMF Mart</title>
-  <!-- Both browser tab and iOS Home Screen icons reuse the original favicon path.
-       The PNG deployed at this path must be square and publicly accessible. -->
-  <link id="site-favicon" rel="icon" type="image/png" sizes="180x180" href="/assets/logo/electrical-shop-black%20-%20Copy.png?v=20261118-21">
-  <link rel="icon" type="image/x-icon" href="/favicon.ico?v=20261118-22">
-  <link id="site-apple-touch-icon" rel="apple-touch-icon" sizes="180x180" href="/assets/logo/electrical-shop-black%20-%20Copy.png?v=20261118-21">
+  <link id="site-favicon" rel="icon" type="image/png" href="assets/logo/electrical-shop-black%20-%20Copy.png">
+  <link id="site-apple-touch-icon" rel="apple-touch-icon" href="assets/logo/electrical-shop-black%20-%20Copy.png">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -5163,9 +5160,10 @@
         document.title = config.site.title || config.store.name || 'AMF Mart';
         var description = document.getElementById('site-description');
         if (description && config.site.description) description.content = config.site.description;
-        // The favicon and Apple touch icon are declared statically in <head>.
-        // Do not rewrite them from config.js: iOS may cache/select the first icon it sees,
-        // and a mismatched config path can silently break the favicon.
+        ['site-favicon', 'site-apple-touch-icon'].forEach(function (id) {
+          var iconLink = document.getElementById(id);
+          if (iconLink && config.assets.favicon) iconLink.href = config.assets.favicon;
+        });
       }
 
       function getMapUrl() {
