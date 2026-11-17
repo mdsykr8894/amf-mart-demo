@@ -111,6 +111,7 @@
       --max-width: var(--content-max);
     }
 
+    /* V5: Native pull-to-refresh and catalogue-state fixes. */
     /* Foundation */
     * { box-sizing: border-box; }
     html {
@@ -118,7 +119,8 @@
       background: var(--bg);
       overflow-x: hidden;
       overflow-x: clip;
-      overscroll-behavior-y: none;
+      /* Allow native browser pull-to-refresh at the top of the page. */
+      overscroll-behavior-y: auto;
     }
     body {
       margin: 0;
@@ -130,7 +132,7 @@
       min-width: 0;
       overflow-x: hidden;
       overflow-x: clip;
-      overscroll-behavior-y: none;
+      overscroll-behavior-y: auto;
     }
     /* Keep the body out of overflow:hidden: that creates a new scroll container
        and dislodges the sticky mobile header when its menu opens mid-page. */
@@ -4944,6 +4946,46 @@
         window.location.hash = hash;
       }
 
+      /* Keep catalogue state in the hash URL. Category links then start with a
+         fresh set of filters, while Back/Forward and shared URLs restore the
+         selected search, brand, category, technical filter and sort. */
+      function defaultCatalogueFilters() {
+        return { query: '', category: 'all', brands: [], techKey: '', techValue: '', sort: 'relevance' };
+      }
+
+      function readCatalogueFiltersFromRoute(route) {
+        if (route.name !== 'products') return;
+        var params = route.query;
+        var next = defaultCatalogueFilters();
+        next.query = params.get('q') || '';
+        next.category = params.get('category') || 'all';
+        next.brands = Array.from(new Set(params.getAll('brand').filter(Boolean)));
+        next.techKey = params.get('tech') || '';
+        next.techValue = next.techKey ? (params.get('value') || '') : '';
+        var sort = params.get('sort') || 'relevance';
+        next.sort = ['relevance', 'name-asc', 'name-desc'].indexOf(sort) !== -1 ? sort : 'relevance';
+        state.filters = next;
+        var requestedPage = Number(params.get('page') || 1);
+        state.page = Number.isSafeInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+        window.clearTimeout(searchInputTimer);
+      }
+
+      function syncCatalogueUrl() {
+        if (routeInfo().name !== 'products') return;
+        var params = new URLSearchParams();
+        if (state.filters.category !== 'all') params.set('category', state.filters.category);
+        if (state.filters.query) params.set('q', state.filters.query);
+        state.filters.brands.forEach(function (brand) { params.append('brand', brand); });
+        if (state.filters.techKey) {
+          params.set('tech', state.filters.techKey);
+          if (state.filters.techValue) params.set('value', state.filters.techValue);
+        }
+        if (state.filters.sort !== 'relevance') params.set('sort', state.filters.sort);
+        if (state.page > 1) params.set('page', String(state.page));
+        var hash = '#/products' + (params.toString() ? '?' + params.toString() : '');
+        if (window.location.hash !== hash) window.history.replaceState(null, '', hash);
+      }
+
       function setMenuState(isOpen) {
         state.menuOpen = Boolean(isOpen);
         document.body.classList.toggle('menu-open', state.menuOpen);
@@ -5059,32 +5101,27 @@
           catalogueUpdateFrame = 0;
         }
         var route = routeInfo();
-        var routeCategory = route.query.get('category');
-        if (route.name === 'products' && routeCategory && state.filters.category !== routeCategory) {
-          state.filters.category = routeCategory || 'all';
-          state.filters.techKey = '';
-          state.filters.techValue = '';
-          state.page = 1;
-        }
         var view = '';
-        if (!state.catalog) {
-          view = state.error ? renderLoadError() : '<div class="loading-state">Loading AMF Mart catalogue…</div>';
-        } else if (route.name === 'home') {
-          view = renderHome();
-        } else if (route.name === 'products') {
-          view = renderProducts();
-        } else if (route.name === 'product') {
-          view = renderProductDetail(route.slug);
-        } else if (route.name === 'cart') {
+        /* Static pages must work even when catalogue.json is unavailable. */
+        if (route.name === 'cart') {
           view = renderCart();
         } else if (route.name === 'about') {
           view = renderAbout();
         } else if (route.name === 'contact') {
           view = renderContact();
-        } else {
+        } else if (['home', 'products', 'product'].indexOf(route.name) === -1) {
           view = renderNotFound();
+        } else if (!state.catalog) {
+          view = state.error ? renderLoadError() : '<div class="loading-state">Loading AMF Mart catalogue…</div>';
+        } else if (route.name === 'home') {
+          view = renderHome();
+        } else if (route.name === 'products') {
+          view = renderProducts();
+        } else {
+          view = renderProductDetail(route.slug);
         }
         app.innerHTML = renderHeader(route) + '<main id="main-content" tabindex="-1">' + view + '</main>' + renderFooter();
+        applyRouteMetadata(route);
         bindAfterRender();
         setupMotion();
         if (options.focus !== false) {
@@ -5095,6 +5132,25 @@
           }, 0);
         }
         if (options.scrollTo === 'catalogue-top') window.setTimeout(scrollToCatalogueTop, 0);
+      }
+
+      function applyRouteMetadata(route) {
+        var base = config.site.title || config.store.name || 'AMF Mart';
+        var labels = { home: '', products: 'Products', cart: 'Cart', about: 'About Us', contact: 'Contact' };
+        var title = Object.prototype.hasOwnProperty.call(labels, route.name) ? labels[route.name] : 'Page Not Found';
+        var summary = config.site.description || 'Electrical products and accessories at AMF Mart.';
+        if (route.name === 'product' && state.catalog) {
+          var match = state.catalog.products.find(function (product) { return product.slug === route.slug; });
+          title = match ? match.name : 'Product Not Found';
+          if (match) summary = match.short_description || match.description || summary;
+        } else if (route.name === 'products') {
+          summary = 'Browse lighting, fans, cables, switches and more electrical products at AMF Mart.';
+        } else if (route.name === 'contact') {
+          summary = 'Contact AMF Mart for electrical product enquiries, opening hours and store details.';
+        }
+        document.title = title ? title + ' | ' + base : base;
+        var description = document.getElementById('site-description');
+        if (description) description.content = String(summary).slice(0, 160);
       }
 
       function scrollToCatalogueTop() {
@@ -5173,7 +5229,7 @@
         ];
         var desktopBanner = getHomeBannerPath('homepage-banner-temporary.png', config.assets.homeBannerDesktop);
         var mobileBanner = getHomeBannerPath('homepage-banner-mobile.png', config.assets.homeBannerMobile);
-        return '<div class="hero"><div class="site-container"><figure class="hero-figure"><picture>' +
+        return '<h1 class="sr-only">AMF Mart — Electrical Supplies for Home and Work</h1><div class="hero"><div class="site-container"><figure class="hero-figure"><picture>' +
           '<source media="(max-width: 767px)" srcset="' + escapeHtml(mobileBanner) + '">' +
           '<img src="' + escapeHtml(desktopBanner) + '" width="1920" height="640" fetchpriority="high" decoding="async" alt="' + escapeHtml(config.store.name) + ' — Power Up Your Space" onerror="var parent=this.closest(\'figure\'); if(parent){parent.classList.add(\'image-fallback\'); parent.textContent=\'Banner unavailable\';}">' +
           '</picture></figure></div></div>' +
@@ -5262,8 +5318,14 @@
             if (nextScroller) nextScroller.scrollTop = filterScrollTop;
           }
         }
+        var searchInput = document.getElementById('product-search');
+        if (searchInput && searchInput.value !== state.filters.query) {
+          searchInput.value = state.filters.query;
+        }
         document.querySelectorAll('[data-filter-category]').forEach(function (option) {
-          option.classList.toggle('is-active', state.filters.category === (option.dataset.filterCategory || 'all'));
+          var selected = state.filters.category === (option.dataset.filterCategory || 'all');
+          option.classList.toggle('is-active', selected);
+          option.setAttribute('aria-pressed', selected ? 'true' : 'false');
         });
         document.querySelectorAll('[data-brand-filter]').forEach(function (checkbox) {
           checkbox.checked = state.filters.brands.indexOf(checkbox.dataset.brandFilter) !== -1;
@@ -5314,6 +5376,7 @@
         var applyUpdate = function () {
           results.innerHTML = renderCatalogueResults();
           syncCatalogueControls(options);
+          syncCatalogueUrl();
           if (options.scrollTo === 'catalogue-top') window.setTimeout(scrollToCatalogueTop, 0);
           if (animate) window.requestAnimationFrame(function () { results.classList.remove('is-refreshing'); });
         };
@@ -5335,7 +5398,7 @@
         }).filter(Boolean);
         var selectedLabel = selectedBrands.length === 0 ? 'All brands' : (selectedBrands.length === 1 ? selectedBrands[0].name : selectedBrands.length + ' brands selected');
         return '<div class="filter-dropdown filter-brand-dropdown" data-filter-dropdown>' +
-          '<button class="filter-trigger" type="button" data-filter-trigger data-brand-filter-trigger aria-haspopup="listbox" aria-expanded="false" aria-controls="brand-filter-options" aria-label="Brand filter"><span class="filter-trigger-label">' + escapeHtml(selectedLabel) + '</span>' + icon('chevronDown') + '</button>' +
+          '<button class="filter-trigger" type="button" data-filter-trigger data-brand-filter-trigger aria-haspopup="true" aria-expanded="false" aria-controls="brand-filter-options" aria-label="Brand filter"><span class="filter-trigger-label">' + escapeHtml(selectedLabel) + '</span>' + icon('chevronDown') + '</button>' +
           '<div class="filter-options filter-brand-options" id="brand-filter-options" role="group" aria-label="Brands">' + brands.map(function (brand) {
             var checked = state.filters.brands.indexOf(brand.id) !== -1;
             return '<label class="filter-menu-option filter-brand-option"><span class="filter-brand-option-label"><input type="checkbox" data-brand-filter="' + escapeHtml(brand.id) + '"' + (checked ? ' checked' : '') + '><span>' + escapeHtml(brand.name) + '</span></span></label>';
@@ -5448,6 +5511,20 @@
         });
         if (state.filters.sort === 'name-asc') products.sort(function (a, b) { return a.name.localeCompare(b.name); });
         if (state.filters.sort === 'name-desc') products.sort(function (a, b) { return b.name.localeCompare(a.name); });
+        if (state.filters.sort === 'relevance' && query) {
+          function relevanceScore(product) {
+            var name = String(product.name || '').toLowerCase();
+            var model = String(product.model || '').toLowerCase();
+            var brand = String(product.brand || '').toLowerCase();
+            if (name === query) return 0;
+            if (name.indexOf(query) === 0) return 1;
+            if (name.indexOf(query) !== -1) return 2;
+            if (model.indexOf(query) !== -1) return 3;
+            if (brand.indexOf(query) !== -1) return 4;
+            return 5;
+          }
+          products.sort(function (a, b) { return relevanceScore(a) - relevanceScore(b); });
+        }
         return products;
       }
 
@@ -5556,16 +5633,16 @@
         return '<div class="page-content contact-page contact-refined">' +
           renderBreadcrumb([{ label: 'Home', href: '#/' }, { label: 'Contact' }]) +
           renderPageHeader(pageHeaders.contact) +
-          '<section class="contact-clean-form contact-refined-contact" id="contact-information"><div class="site-container"><div class="contact-refined-contact-grid"><div class="contact-refined-contact-heading"><h2>GET IN TOUCH</h2><p>Have a question about a product? Contact AMF Mart for details, specifications or availability.</p></div><div class="contact-refined-contact-form"><form id="contact-message-form-element"><div class="form-row"><div class="form-field"><label for="contact-name">Name</label><input id="contact-name" name="name" type="text" autocomplete="name" placeholder="Your name" required></div><div class="form-field"><label for="contact-email">Email</label><input id="contact-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></div></div><div class="form-field"><label for="contact-subject">Subject</label><input id="contact-subject" name="subject" type="text" placeholder="Product enquiry" required></div><div class="form-field"><label for="contact-message">Message</label><textarea id="contact-message" name="message" rows="5" placeholder="Product name, model or what you need to know" required></textarea></div><div class="cta-actions"><button class="btn btn-primary" type="submit">Submit ' + icon('arrow') + '</button><p class="contact-form-status" id="contact-form-status" aria-live="polite"></p></div></form></div><div class="contact-refined-contact-info"><div class="contact-clean-methods">' + phone + email + location + '</div></div></div></div></section>' +
-          '<section class="contact-clean-questions" id="contact-questions"><div class="site-container"><div class="home-section-heading"><h2>QUICK QUESTIONS</h2></div><div class="contact-clean-questions-list"><details><summary>What should I include in an enquiry?</summary><p>Share the product name, model, brand or a short description of what you need.</p></details><details><summary>How can I ask about a product?</summary><p>Use the contact details or message form above and include the product information you have.</p></details><details><summary>When is AMF Mart open?</summary><p>AMF Mart is open Saturday to Thursday from 8:30 AM to 5:30 PM. Friday is closed.</p></details></div></div></section>' +
+          '<section class="contact-clean-form contact-refined-contact" id="contact-information"><div class="site-container"><div class="contact-refined-contact-grid"><div class="contact-refined-contact-heading"><h2>GET IN TOUCH</h2><p>Have a question about a product? Contact AMF Mart for details, specifications or availability.</p></div><div class="contact-refined-contact-form"><form id="contact-message-form-element"><div class="form-row"><div class="form-field"><label for="contact-name">Name</label><input id="contact-name" name="name" type="text" autocomplete="name" placeholder="Your name" required></div><div class="form-field"><label for="contact-email">Email</label><input id="contact-email" name="email" type="email" autocomplete="email" placeholder="you@example.com" required></div></div><div class="form-field"><label for="contact-subject">Subject</label><input id="contact-subject" name="subject" type="text" placeholder="Product enquiry" required></div><div class="form-field"><label for="contact-message">Message</label><textarea id="contact-message" name="message" rows="5" placeholder="Product name, model or what you need to know" required></textarea></div><div class="cta-actions"><button class="btn btn-primary" type="submit">Open Email App ' + icon('arrow') + '</button><p class="contact-form-status" id="contact-form-status" aria-live="polite"></p></div></form></div><div class="contact-refined-contact-info"><div class="contact-clean-methods">' + phone + email + location + '</div></div></div></div></section>' +
+          '<section class="contact-clean-questions" id="contact-questions"><div class="site-container"><div class="home-section-heading"><h2>QUICK QUESTIONS</h2></div><div class="contact-clean-questions-list"><details><summary>What should I include in an enquiry?</summary><p>Share the product name, model, brand or a short description of what you need.</p></details><details><summary>How can I ask about a product?</summary><p>Use the contact details or message form above and include the product information you have.</p></details><details><summary>When is AMF Mart open?</summary><p>' + escapeHtml([config.location.hours.days, config.location.hours.time, config.location.hours.closed].filter(Boolean).join(' · ') || 'Please contact us for current opening hours.') + '</p></details></div></div></section>' +
         '</div>';
       }
 
       function clearFilters() {
-        state.filters = { query: '', category: 'all', brands: [], techKey: '', techValue: '', sort: 'relevance' };
+        window.clearTimeout(searchInputTimer);
+        state.filters = defaultCatalogueFilters();
         state.page = 1;
         if (routeInfo().name === 'products') {
-          window.history.replaceState(null, '', '#/products');
           updateCatalogueResults({ refreshFilters: true });
         } else {
           navigate('#/products');
@@ -5573,17 +5650,14 @@
       }
 
       function removeFilter(kind, value) {
-        if (kind === 'query') state.filters.query = '';
+        if (kind === 'query') {
+          window.clearTimeout(searchInputTimer);
+          state.filters.query = '';
+        }
         if (kind === 'category') {
           state.filters.category = 'all';
-          state.page = 1;
-          if (routeInfo().name === 'products') {
-            window.history.replaceState(null, '', '#/products');
-            updateCatalogueResults({ refreshFilters: true });
-          } else {
-            navigate('#/products?category=all');
-          }
-          return;
+          state.filters.techKey = '';
+          state.filters.techValue = '';
         }
         if (kind === 'brand') state.filters.brands = state.filters.brands.filter(function (brandId) { return brandId !== value; });
         if (kind === 'technical') {
@@ -5591,7 +5665,7 @@
           state.filters.techValue = '';
         }
         state.page = 1;
-        updateCatalogueResults({ refreshFilters: kind === 'technical' });
+        updateCatalogueResults({ refreshFilters: kind === 'technical' || kind === 'category' });
       }
 
       var motionObserver = null;
@@ -5676,11 +5750,15 @@
             event.preventDefault();
             var data = new FormData(contactForm);
             var recipient = config.contact.email.href || 'mailto:' + (config.contact.email.display || '');
+            var status = document.getElementById('contact-form-status');
+            if (!recipient.startsWith('mailto:') || !recipient.slice(7).trim()) {
+              if (status) status.textContent = 'Email kedai belum dikonfigurasi. Sila hubungi kami melalui WhatsApp atau telefon.';
+              return;
+            }
             var subject = encodeURIComponent(data.get('subject') || 'AMF Mart enquiry');
             var body = encodeURIComponent('Name: ' + (data.get('name') || '') + '\nEmail: ' + (data.get('email') || '') + '\n\n' + (data.get('message') || ''));
             var separator = recipient.indexOf('?') === -1 ? '?' : '&';
-            var status = document.getElementById('contact-form-status');
-            if (status) status.textContent = 'Preparing your email…';
+            if (status) status.textContent = 'Email app akan dibuka. Tekan Send dalam aplikasi e-mel untuk menghantar mesej.';
             window.location.href = recipient + separator + 'subject=' + subject + '&body=' + body;
           });
         }
@@ -5896,12 +5974,10 @@
           state.filters.techValue = '';
           state.page = 1;
           closeFilterPanel();
-          var categoryHash = selectedCategory === 'all' ? '#/products' : '#/products?category=' + encodeURIComponent(selectedCategory);
           if (routeInfo().name === 'products') {
-            window.history.replaceState(null, '', categoryHash);
             updateCatalogueResults({ refreshFilters: true });
           } else {
-            navigate(categoryHash);
+            navigate(selectedCategory === 'all' ? '#/products' : '#/products?category=' + encodeURIComponent(selectedCategory));
           }
         } else if (target.dataset.page !== undefined && !target.disabled) {
           event.preventDefault();
@@ -5948,13 +6024,35 @@
       });
 
       document.addEventListener('keydown', function (event) {
+        var dropdownOption = event.target.closest && event.target.closest('.sort-option, .filter-menu-option[role="option"]');
+        var trigger = event.target.closest && event.target.closest('[data-sort-trigger], [data-filter-trigger]');
+        if (trigger && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
+          event.preventDefault();
+          var container = trigger.closest('[data-sort-dropdown], [data-filter-dropdown]');
+          if (container && !container.classList.contains('is-open')) trigger.click();
+          var options = Array.from(container ? container.querySelectorAll('[role="option"]') : []);
+          if (options.length) (event.key === 'ArrowDown' ? options[0] : options[options.length - 1]).focus();
+          return;
+        }
+        if (dropdownOption && ['ArrowDown', 'ArrowUp', 'Home', 'End'].indexOf(event.key) !== -1) {
+          event.preventDefault();
+          var siblings = Array.from(dropdownOption.parentElement.querySelectorAll('[role="option"]'));
+          var index = siblings.indexOf(dropdownOption);
+          if (event.key === 'Home') index = 0;
+          else if (event.key === 'End') index = siblings.length - 1;
+          else index = (index + (event.key === 'ArrowDown' ? 1 : -1) + siblings.length) % siblings.length;
+          if (siblings[index]) siblings[index].focus();
+          return;
+        }
         if (event.key === 'Enter' && event.target.matches && event.target.matches('[data-page-input]')) {
           event.preventDefault();
           goToPageFromInput(event.target);
           return;
         }
         if (event.key === 'Escape') {
+          var openTrigger = document.querySelector('[data-sort-dropdown].is-open [data-sort-trigger], [data-filter-dropdown].is-open [data-filter-trigger]');
           closeCustomDropdowns();
+          if (openTrigger) openTrigger.focus();
           if (state.menuOpen) {
             setMenuState(false);
           }
@@ -5963,13 +6061,7 @@
 
       window.addEventListener('hashchange', function () {
         var nextRoute = routeInfo();
-        if (nextRoute.name === 'products' && !nextRoute.query.get('category')) {
-          state.filters.category = 'all';
-          state.filters.brands = [];
-          state.filters.techKey = '';
-          state.filters.techValue = '';
-          state.page = 1;
-        }
+        if (nextRoute.name === 'products') readCatalogueFiltersFromRoute(nextRoute);
         state.menuOpen = false;
         state.filterOpen = false;
         document.body.classList.remove('menu-open');
@@ -6034,6 +6126,11 @@
           });
       }
 
+      readCatalogueFiltersFromRoute(routeInfo());
+      /* Render static routes immediately; the catalogue loads independently. */
+      if (['about', 'contact', 'cart'].indexOf(routeInfo().name) !== -1 || ['home', 'products', 'product'].indexOf(routeInfo().name) === -1) {
+        renderRoute({ focus: false });
+      }
       loadCatalogue();
     }());
   </script>
