@@ -47,7 +47,7 @@ window.AMF_CONFIG = {
 
   social: {
     facebookUrl: 'https://www.facebook.com/AmfMart/',
-    tiktokUrl: ''
+    tiktokUrl: 'https://www.tiktok.com/@ptafirstelectrical'
   },
 
   assets: {
