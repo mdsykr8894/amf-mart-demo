@@ -5070,6 +5070,47 @@
         margin: 0;
       }
     }
+
+    /* V18 — Product artwork sizing.
+       The catalogue artwork is square.  A landscape image stage together
+       with object-fit:contain introduced large side gutters on desktop.
+       Give every product card a stable 1:1 stage so the full image can fill
+       the card width, without clipping or stretching on iPadOS/Safari. */
+    .product-card-image {
+      display: block;
+      position: relative;
+      width: 100%;
+      min-width: 0;
+      aspect-ratio: 1 / 1;
+      flex: 0 0 auto;
+      overflow: hidden;
+      /* A real bottom border reduces the square image content box by 1px.
+         With object-fit: contain, that creates a hairline side gutter. */
+      border-bottom: 0;
+    }
+    /* Preserve the original separator without changing the image stage's dimensions. */
+    .product-card-image::after {
+      content: '';
+      position: absolute;
+      z-index: 1;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 1px;
+      background: var(--color-border);
+      pointer-events: none;
+    }
+    .product-card-image > img {
+      display: block;
+      width: 100%;
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      object-position: center;
+    }
   </style>
 </head>
 <body>
