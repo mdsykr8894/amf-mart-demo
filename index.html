@@ -132,7 +132,10 @@
       overflow-x: clip;
       overscroll-behavior-y: none;
     }
-    body.menu-open { overflow: hidden; }
+    /* Keep the body out of overflow:hidden: that creates a new scroll container
+       and dislodges the sticky mobile header when its menu opens mid-page. */
+    body.menu-open { overflow-x: clip; overflow-y: clip; }
+    html.menu-open { overflow-y: hidden; }
     a { color: inherit; text-decoration: none; }
     button, input, select, textarea { font: inherit; }
     button, a {
@@ -4399,6 +4402,264 @@
       .home-category-media .category-icon,
       .product-card { transition-duration: .01ms !important; }
     }
+
+    /* ================================================================
+       November mobile fixes: scroll-safe menu, filter actions, unavailable
+       features, shared missing-page view and identical logo dimensions.
+       ================================================================ */
+    :root { --amf-logo-width: 132px; }
+    html body .brand-logo img,
+    html body .footer-logo,
+    html body .footer-brand-block .footer-logo {
+      display: block;
+      width: var(--amf-logo-width);
+      height: auto;
+      max-width: none;
+    }
+    @media (max-width: 850px) {
+      :root { --amf-logo-width: 120px; }
+    }
+    @media (max-width: 480px) {
+      :root { --amf-logo-width: 108px; }
+    }
+
+    /* Keep the Login action visually distinguishable from the working Cart. */
+    .nav-actions .nav-action.is-disabled {
+      opacity: .52;
+      cursor: not-allowed;
+    }
+    .nav-actions .nav-action.is-disabled:hover,
+    .nav-actions .nav-action.is-disabled:focus-visible {
+      color: var(--color-muted-strong);
+      background: transparent;
+      transform: none;
+    }
+
+    /* Cart remains clickable only to explain its unavailability. */
+    .detail-cart-btn,
+    .detail-cart-btn:hover,
+    .detail-cart-btn:focus-visible,
+    .detail-cart-btn.is-touch-pressed {
+      opacity: .67;
+      background: var(--color-brand);
+      border-color: var(--color-brand);
+      color: var(--color-surface);
+      transform: none;
+    }
+    .cart-availability-note {
+      margin: 10px 0 0;
+      color: var(--color-muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .site-action-notice {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      z-index: 120;
+      width: max-content;
+      max-width: min(480px, calc(100vw - 32px));
+      padding: 13px 18px;
+      background: var(--color-ink);
+      color: var(--color-on-dark);
+      border-left: 3px solid var(--color-brand);
+      border-radius: 10px;
+      box-shadow: 0 14px 36px rgba(24, 26, 32, .23);
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.5;
+      text-align: center;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transform: translate(-50%, 12px);
+      transition: opacity var(--transition-standard), transform var(--transition-standard), visibility var(--transition-standard);
+    }
+    .site-action-notice.is-visible {
+      opacity: 1;
+      visibility: visible;
+      transform: translate(-50%, 0);
+    }
+
+    /* Smaller, calmer not-found page replaces the oversized bordered card. */
+    .not-found-page { padding: 0; }
+    .not-found-shell {
+      min-height: min(58svh, 520px);
+      max-width: 640px;
+      margin-inline: auto;
+      padding: clamp(64px, 9vw, 112px) 12px 84px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .not-found-mark {
+      width: 58px;
+      height: 58px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 20px;
+      color: var(--color-brand);
+      background: var(--color-brand-soft);
+      border-radius: 50%;
+    }
+    .not-found-mark .icon { width: 24px; height: 24px; }
+    .not-found-kicker {
+      margin: 0 0 10px;
+      color: var(--color-brand);
+      font-size: 11px;
+      font-weight: 800;
+      line-height: 1.4;
+      letter-spacing: .11em;
+    }
+    .not-found-shell h1 {
+      max-width: 620px;
+      margin: 0 0 14px;
+      color: var(--color-ink);
+      font-size: clamp(30px, 3.8vw, 44px);
+      line-height: 1.16;
+      letter-spacing: -.045em;
+    }
+    .not-found-description {
+      max-width: 480px;
+      margin: 0;
+      color: var(--color-muted);
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    .not-found-actions {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 26px;
+    }
+    .not-found-actions .btn { min-height: 44px; }
+
+    @media (max-width: 900px) {
+      /* The filter overlay has one horizontal action row at its end. */
+      .products-page .filter-clear-desktop { display: none; }
+      .products-page .filter-mobile-actions {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        gap: 10px;
+        margin-top: 12px;
+        padding-top: 14px;
+        border-top: 1px solid var(--color-border);
+      }
+      .products-page .filter-mobile-actions .btn {
+        width: 100%;
+        min-height: 42px;
+        padding: 8px 12px;
+        font-size: 13px;
+      }
+      .products-page .filter-mobile-actions .filter-close-button {
+        color: var(--color-surface);
+        background: var(--color-brand);
+        border-color: var(--color-brand);
+      }
+      .products-page .filter-mobile-actions .filter-close-button:hover,
+      .products-page .filter-mobile-actions .filter-close-button:focus-visible,
+      .products-page .filter-mobile-actions .filter-close-button.is-touch-pressed {
+        color: var(--color-surface);
+        background: var(--color-brand-hover);
+        border-color: var(--color-brand-hover);
+      }
+      .products-page .filter-mobile-actions .filter-close-button .icon {
+        width: 15px;
+        height: 15px;
+      }
+    }
+    @media (max-width: 767px) {
+      .cart-availability-note { font-size: 11px; }
+      .site-action-notice { bottom: 86px; font-size: 12px; }
+      .not-found-shell {
+        min-height: 43svh;
+        padding: 64px 8px 72px;
+      }
+      .not-found-shell h1 { font-size: clamp(27px, 7vw, 34px); }
+      .not-found-description { font-size: 13px; }
+      .not-found-actions { width: 100%; max-width: 340px; }
+      .not-found-actions .btn { flex: 1 1 150px; }
+    }
+
+
+    /* V4: TikTok's SVG artwork occupies less of its 24x24 viewBox than
+       Facebook's. Correct its optical size without changing button dimensions. */
+    .footer-brand-block .social-link-tiktok .brand-mark {
+      transform: translateY(1px) scale(1.3);
+      transform-origin: center center;
+    }
+
+    /* Focused V3 refinements: social marks, pinned filter actions and contact inputs. */
+    .footer-brand-block .social-link-facebook .brand-mark,
+    .footer-brand-block .social-link-tiktok .brand-mark {
+      width: 23px;
+      height: 23px;
+    }
+    .footer-brand-block .social-link-whatsapp .brand-mark {
+      width: 20px;
+      height: 20px;
+    }
+
+    @media (max-width: 900px) {
+      /* An open filter popover must cover the floating WhatsApp control, not
+         leave it obscuring the Apply button. Normal stacking is unchanged. */
+      .products-page .catalogue-filter-column:has(.filter-panel.is-open) {
+        z-index: 70;
+      }
+      /* Only the option content scrolls: Clear All / Apply never leave view. */
+      .products-page .filter-panel,
+      .products-page .filter-panel.is-open {
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+      .products-page .filter-panel .filter-card-combined {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+        max-height: 100%;
+        padding: 0;
+      }
+      .products-page .filter-card-combined .filter-scroll-content {
+        min-height: 0;
+        flex: 1 1 auto;
+        padding: 16px 16px 12px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-gutter: stable;
+      }
+      .products-page .filter-mobile-actions {
+        flex: 0 0 auto;
+        margin: 0;
+        padding: 12px 16px calc(16px + env(safe-area-inset-bottom, 0px));
+        background: var(--color-surface);
+        border-top: 1px solid var(--color-border);
+      }
+    }
+    @media (max-width: 560px) {
+      .footer-brand-block .social-link-facebook .brand-mark,
+      .footer-brand-block .social-link-tiktok .brand-mark {
+        width: 21px;
+        height: 21px;
+      }
+      .footer-brand-block .social-link-whatsapp .brand-mark {
+        width: 19px;
+        height: 19px;
+      }
+    }
+    @media (max-width: 767px) {
+      /* Previous mobile rules promoted input text to 16px, larger than desired. */
+      .contact-refined-contact-form .form-field input,
+      .contact-refined-contact-form .form-field textarea {
+        font-size: 14px;
+        line-height: 1.45;
+      }
+    }
   </style>
 </head>
 <body>
@@ -4686,6 +4947,7 @@
       function setMenuState(isOpen) {
         state.menuOpen = Boolean(isOpen);
         document.body.classList.toggle('menu-open', state.menuOpen);
+        document.documentElement.classList.toggle('menu-open', state.menuOpen);
 
         var toggle = document.querySelector('[data-action="toggle-menu"]');
         var glyph = toggle ? toggle.querySelector('.menu-toggle-glyph') : null;
@@ -4717,7 +4979,7 @@
                 navLink('#/contact', 'Contact', active === 'contact') +
               '</nav>' +
               '<div class="nav-actions">' +
-                '<button class="nav-action is-disabled" type="button" data-disabled-link data-tooltip="Login is not available yet." aria-disabled="true" aria-label="Login">' + icon('user') + '</button>' +
+                '<button class="nav-action is-disabled" type="button" data-disabled-link data-disabled-message="Login belum tersedia buat masa ini." data-tooltip="Login is not available yet." aria-disabled="true" aria-label="Login (coming soon)">' + icon('user') + '</button>' +
                 '<a class="nav-action" href="#/cart" aria-label="Cart" title="Cart">' + icon('cart') + '</a>' +
               '</div>' +
               '<button class="menu-toggle" type="button" data-action="toggle-menu" aria-controls="mobile-navigation" aria-label="' + (state.menuOpen ? 'Close menu' : 'Open menu') + '" aria-expanded="' + (state.menuOpen ? 'true' : 'false') + '"><span class="menu-toggle-glyph' + (state.menuOpen ? ' is-open' : '') + '" aria-hidden="true"><span></span><span></span><span></span></span></button>' +
@@ -4727,7 +4989,7 @@
               navLink('#/products', 'Products', active === 'products' || active === 'product') +
               navLink('#/about', 'About Us', active === 'about') +
               navLink('#/contact', 'Contact', active === 'contact') +
-              '<button class="mobile-menu-utility is-disabled" type="button" data-disabled-link aria-disabled="true"><span>Login</span><small>Coming soon</small></button>' +
+              '<button class="mobile-menu-utility is-disabled" type="button" data-disabled-link data-disabled-message="Login belum tersedia buat masa ini." aria-disabled="true"><span>Login</span><small>Coming soon</small></button>' +
               '<a class="mobile-menu-utility' + (active === 'cart' ? ' is-active' : '') + '" href="#/cart"><span>Cart</span></a>' +
             '</nav>' +
           '</header>' +
@@ -4849,8 +5111,24 @@
         return '<div class="page-content"><div class="site-container"><div class="empty-state"><div class="empty-icon">' + icon('info') + '</div><h1>Products could not be loaded.</h1><p>Please try again.</p><button class="btn btn-primary" type="button" data-action="retry-catalogue">Try Again</button></div></div></div>';
       }
 
+      /* Shared not-found presentation for both unknown pages and missing products. */
+      function renderMissingState(isProduct) {
+        var label = isProduct ? 'PRODUCT NOT FOUND' : 'PAGE NOT FOUND';
+        var heading = isProduct ? 'We couldn\'t find that product.' : 'This page isn\'t available.';
+        var description = isProduct
+          ? 'This item may have moved or is no longer listed. Explore our catalogue to find what you need.'
+          : 'The link may be outdated or the address may be incorrect. You can continue browsing AMF Mart below.';
+        return '<div class="page-content not-found-page"><div class="site-container"><section class="not-found-shell" aria-labelledby="not-found-title">' +
+          '<span class="not-found-mark" aria-hidden="true">' + icon(isProduct ? 'search' : 'info') + '</span>' +
+          '<p class="not-found-kicker">' + label + '</p>' +
+          '<h1 id="not-found-title">' + heading + '</h1>' +
+          '<p class="not-found-description">' + description + '</p>' +
+          '<div class="not-found-actions"><a class="btn btn-primary" href="#/products">Browse Products ' + icon('arrow') + '</a><a class="btn btn-secondary" href="#/">Back to Home</a></div>' +
+          '</section></div></div>';
+      }
+
       function renderNotFound() {
-        return '<div class="page-content"><div class="site-container"><div class="empty-state"><div class="empty-icon">' + icon('info') + '</div><h1>Page not found.</h1><p>The page you requested is not available.</p><a class="btn btn-primary" href="#/">Back to Home</a></div></div></div>';
+        return renderMissingState(false);
       }
 
       /* Use the existing homepage banner folder from config.js; only swap
@@ -4940,7 +5218,7 @@
           .join(' · ');
         return '<a class="product-card" href="' + escapeHtml(productHref) + '" aria-label="View details for ' + escapeHtml(product.name) + '">' +
           '<span class="product-card-image" aria-hidden="true">' +
-            (image ? '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(alt) + '" loading="lazy" onerror="this.remove(); this.parentElement.classList.add(\'image-fallback\'); this.parentElement.textContent=\'Image unavailable\'">' : '<span class="image-fallback">Image unavailable</span>') +
+            (image ? '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(alt) + '" loading="lazy" onerror="var p=this.parentElement; this.remove(); if(p){p.classList.add(\'image-fallback\');p.textContent=\'Image unavailable\'}">' : '<span class="image-fallback">Image unavailable</span>') +
           '</span>' +
           '<span class="product-card-body"><span class="product-category">' + escapeHtml(shortCategoryName(product.category_id)) + '</span><span class="product-card-title">' + escapeHtml(product.name) + '</span>' + (meta.length ? '<span class="product-meta">' + escapeHtml(meta.join(' · ')) + '</span>' : '') + (spec ? '<span class="product-spec-line">' + escapeHtml(spec) + '</span>' : '') + '<span class="product-card-footer"><span class="text-link">VIEW DETAILS ' + icon('arrow') + '</span></span></span>' +
         '</a>';
@@ -4977,9 +5255,11 @@
         if (options.refreshFilters) {
           var filterPanel = document.querySelector('.filter-panel');
           if (filterPanel) {
-            var filterScrollTop = filterPanel.scrollTop;
+            var existingScroller = filterPanel.querySelector('.filter-scroll-content');
+            var filterScrollTop = existingScroller ? existingScroller.scrollTop : filterPanel.scrollTop;
             filterPanel.innerHTML = renderFilters();
-            filterPanel.scrollTop = filterScrollTop;
+            var nextScroller = filterPanel.querySelector('.filter-scroll-content');
+            if (nextScroller) nextScroller.scrollTop = filterScrollTop;
           }
         }
         document.querySelectorAll('[data-filter-category]').forEach(function (option) {
@@ -5069,13 +5349,15 @@
         var technical = technicalOptions();
         var technicalMarkup = technical.keys.length ? '<div class="filter-section filter-technical-section"><div class="filter-title"><span>Technical Filters</span></div>' + renderFilterDropdown('tech-key', 'tech-key', state.filters.techKey, [{ value: '', label: 'All technical fields' }].concat(technical.keys.map(function (key) { return { value: key, label: formatLabel(key) }; })), 'Technical field') + (state.filters.techKey ? renderFilterDropdown('tech-value', 'tech-value', state.filters.techValue, [{ value: '', label: 'All values' }].concat(technical.values.map(function (value) { return { value: value, label: value }; })), 'Technical value') : '') + '</div>' : '';
         return '<div class="filter-card filter-card-combined">' +
+          '<div class="filter-scroll-content">' +
           '<div class="filter-section filter-category-section"><div class="filter-title"><span>Categories</span></div><div class="filter-list filter-list-scroll filter-category-list"><button class="filter-option' + (state.filters.category === 'all' ? ' is-active' : '') + '" type="button" data-filter-category="all">All Products</button>' + categories.map(function (category) {
             return '<button class="filter-option' + (state.filters.category === category.id ? ' is-active' : '') + '" type="button" data-filter-category="' + category.id + '">' + escapeHtml(categoryLabels[category.id] || category.name) + '</button>';
           }).join('') + '</div></div>' +
           '<div class="filter-section filter-brand-section"><div class="filter-title"><span>Brands</span></div>' + renderBrandFilterDropdown(brands) + '</div>' +
           technicalMarkup +
+          '</div>' +
           '<button class="btn btn-secondary filter-clear filter-clear-desktop" type="button" data-action="clear-filters">Clear All</button>' +
-          '<div class="filter-mobile-actions"><button class="btn btn-secondary filter-action-secondary" type="button" data-action="clear-filters">Clear All</button></div>' +
+          '<div class="filter-mobile-actions"><button class="btn btn-secondary filter-action-secondary" type="button" data-action="clear-filters">Clear All</button><button class="btn btn-primary filter-close-button" type="button" data-action="apply-filters" aria-label="Apply and close catalogue filters">Apply</button></div>' +
         '</div>';
       }
 
@@ -5216,7 +5498,7 @@
 
       function renderProductDetail(slug) {
         var product = state.catalog.products.find(function (item) { return item.slug === slug; });
-        if (!product) return '<div class="page-content"><div class="site-container"><div class="empty-state"><div class="empty-icon">' + icon('info') + '</div><h1>Product not found.</h1><p>The requested catalogue item is not available.</p><a class="btn btn-primary" href="#/products">Return to Products</a></div></div></div>';
+        if (!product) return renderMissingState(true);
         var image = product.images && product.images[0] ? resolveImage(product.images[0].src) : '';
         var related = state.catalog.products.filter(function (item) { return item.category_id === product.category_id && item.id !== product.id; }).slice(0, 5);
         var specs = Object.entries(product.specifications || {}).filter(function (entry) { return entry[1] !== undefined && entry[1] !== null && String(entry[1]).trim() !== ''; });
@@ -5228,7 +5510,7 @@
           return { label: formatLabel(entry[0]), value: String(entry[1]) };
         }));
         var whatsapp = config.contact.whatsappUrl ? '<a class="btn detail-whatsapp-btn" href="' + escapeHtml(config.contact.whatsappUrl) + '" target="_blank" rel="noopener">' + brandIcon('whatsapp') + ' WhatsApp</a>' : '<button class="btn btn-disabled" type="button" disabled>WhatsApp unavailable</button>';
-        var cartButton = '<button class="btn detail-cart-btn" type="button" data-disabled-link data-tooltip="Cart is not available yet." aria-disabled="true">Add to Cart</button>';
+        var cartButton = '<button class="btn detail-cart-btn" type="button" data-disabled-link data-disabled-message="Cart belum tersedia. Buat masa ini, pembelian hanya di kedai (walk-in)." data-tooltip="Cart is not available yet." aria-disabled="true" aria-describedby="cart-availability-note">Add to Cart</button>';
         var description = product.description || product.short_description || '';
         return '<div class="page-content product-detail-page">' + renderBreadcrumb([
           { label: 'Home', href: '#/' },
@@ -5236,7 +5518,7 @@
           { label: shortCategoryName(product.category_id), href: '#/products?category=' + encodeURIComponent(product.category_id) },
           { label: product.name, title: product.name }
         ]) + '<div class="site-container">' +
-          '<div class="detail-layout"><div class="detail-image">' + (image ? '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(product.images[0].alt || product.name) + '" onerror="this.remove(); this.parentElement.classList.add(\'image-fallback\'); this.parentElement.textContent=\'Image unavailable\'">' : '<span class="image-fallback">Image unavailable</span>') + '</div><div class="detail-panel"><div class="detail-kicker">' + escapeHtml(categoryName(product.category_id)) + '</div><h1 class="detail-title">' + escapeHtml(product.name) + '</h1><div class="detail-model">' + escapeHtml([product.brand, product.model].filter(Boolean).join(' · ')) + '</div><div class="detail-facts">' + facts.map(function (fact) { return '<div class="detail-fact"><span class="detail-fact-label">' + escapeHtml(fact.label) + '</span><span class="detail-fact-value" title="' + escapeHtml(fact.value) + '">' + escapeHtml(fact.value) + '</span></div>'; }).join('') + '</div><div class="detail-actions">' + whatsapp + cartButton + '</div></div></div>' +
+          '<div class="detail-layout"><div class="detail-image">' + (image ? '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(product.images[0].alt || product.name) + '" onerror="var p=this.parentElement; this.remove(); if(p){p.classList.add(\'image-fallback\');p.textContent=\'Image unavailable\'}">' : '<span class="image-fallback">Image unavailable</span>') + '</div><div class="detail-panel"><div class="detail-kicker">' + escapeHtml(categoryName(product.category_id)) + '</div><h1 class="detail-title">' + escapeHtml(product.name) + '</h1><div class="detail-model">' + escapeHtml([product.brand, product.model].filter(Boolean).join(' · ')) + '</div><div class="detail-facts">' + facts.map(function (fact) { return '<div class="detail-fact"><span class="detail-fact-label">' + escapeHtml(fact.label) + '</span><span class="detail-fact-value" title="' + escapeHtml(fact.value) + '">' + escapeHtml(fact.value) + '</span></div>'; }).join('') + '</div><div class="detail-actions">' + whatsapp + cartButton + '</div><p id="cart-availability-note" class="cart-availability-note">Cart belum tersedia. Pembelian secara walk-in sahaja buat masa ini.</p></div></div>' +
           (description ? '<section class="spec-section"><h2>Product Description</h2><p>' + escapeHtml(description) + '</p></section>' : '') +
           (specs.length ? '<section class="spec-section"><h2>Technical Specifications</h2><table class="spec-table"><tbody>' + specs.map(function (entry) { return '<tr><th scope="row">' + escapeHtml(formatLabel(entry[0])) + '</th><td>' + escapeHtml(entry[1]) + '</td></tr>'; }).join('') + '</tbody></table></section>' : '') +
           '<section class="related-section"><div class="section-heading"><div><h2>RELATED PRODUCTS</h2></div><a class="text-link related-category-header-link" href="#/products?category=' + encodeURIComponent(product.category_id) + '">VIEW CATEGORY ' + icon('arrow') + '</a></div>' + (related.length ? '<div class="product-grid related-grid">' + related.map(renderProductCard).join('') + '</div>' : '<div class="empty-state"><p>No related products available.</p></div>') + '<div class="home-section-link home-section-mobile-link related-category-link"><a class="text-link" href="#/products?category=' + encodeURIComponent(product.category_id) + '">VIEW CATEGORY ' + icon('arrow') + '</a></div></section>' +
@@ -5404,7 +5686,9 @@
         }
         var filterPanel = document.querySelector('.filter-panel');
         if (filterPanel) {
-          filterPanel.addEventListener('scroll', repositionOpenFilterDropdowns, { passive: true });
+          // Capture scroll events from the inner scroller, including after re-render.
+          filterPanel.addEventListener('scroll', repositionOpenFilterDropdowns, true);
+          if (filterPanel.classList.contains('is-open')) sizeFilterPanel();
         }
       }
 
@@ -5416,6 +5700,22 @@
           if (trigger) trigger.setAttribute('aria-expanded', 'false');
         });
       }
+
+      // Keep the filter footer in the actual visible viewport, not below it.
+      function sizeFilterPanel() {
+        var panel = document.querySelector('.products-page .filter-panel');
+        if (!panel) return;
+        if (!window.matchMedia('(max-width: 900px)').matches) {
+          panel.style.maxHeight = '';
+          return;
+        }
+        if (!panel.classList.contains('is-open')) return;
+        var viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+        var availableHeight = viewportHeight - panel.getBoundingClientRect().top - 12;
+        panel.style.maxHeight = Math.max(96, Math.min(viewportHeight * .72, 560, availableHeight)) + 'px';
+      }
+      window.addEventListener('resize', sizeFilterPanel);
+      if (window.visualViewport) window.visualViewport.addEventListener('resize', sizeFilterPanel);
 
       function closeFilterPanel() {
         if (!state.filterOpen) return;
@@ -5473,6 +5773,25 @@
       document.addEventListener('pointerup', endTouchPress, { passive: true });
       document.addEventListener('pointercancel', endTouchPress, { passive: true });
 
+      var noticeHideTimer = 0;
+      function showSiteNotice(message) {
+        var notice = document.getElementById('site-action-notice');
+        if (!notice) {
+          notice = document.createElement('div');
+          notice.id = 'site-action-notice';
+          notice.className = 'site-action-notice';
+          notice.setAttribute('role', 'status');
+          notice.setAttribute('aria-live', 'polite');
+          document.body.appendChild(notice);
+        }
+        window.clearTimeout(noticeHideTimer);
+        notice.textContent = message;
+        notice.classList.add('is-visible');
+        noticeHideTimer = window.setTimeout(function () {
+          notice.classList.remove('is-visible');
+        }, 3800);
+      }
+
       document.addEventListener('click', function (event) {
         if (
           state.filterOpen &&
@@ -5523,6 +5842,7 @@
         var disabledLink = event.target.closest('[data-disabled-link]');
         if (disabledLink) {
           event.preventDefault();
+          showSiteNotice(disabledLink.getAttribute('data-disabled-message') || 'Fungsi ini belum tersedia buat masa ini.');
           return;
         }
         if (
@@ -5553,7 +5873,12 @@
           state.filterOpen = !state.filterOpen;
           var filterPanel = document.querySelector('.filter-panel');
           if (filterPanel) filterPanel.classList.toggle('is-open', state.filterOpen);
+          if (state.filterOpen) sizeFilterPanel();
           target.setAttribute('aria-expanded', state.filterOpen ? 'true' : 'false');
+        } else if (target.dataset.action === 'apply-filters') {
+          event.preventDefault();
+          closeCustomDropdowns();
+          closeFilterPanel();
         } else if (target.dataset.action === 'clear-filters') {
           event.preventDefault();
           clearFilters();
@@ -5648,6 +5973,10 @@
         state.menuOpen = false;
         state.filterOpen = false;
         document.body.classList.remove('menu-open');
+        document.documentElement.classList.remove('menu-open');
+        window.clearTimeout(noticeHideTimer);
+        var visibleNotice = document.getElementById('site-action-notice');
+        if (visibleNotice) visibleNotice.classList.remove('is-visible');
         renderRoute();
       });
       window.addEventListener('resize', function () {
