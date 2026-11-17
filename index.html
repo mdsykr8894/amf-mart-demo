@@ -5,8 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta id="site-description" name="description" content="AMF Mart electrical product catalogue for home use, technical work and business needs.">
   <title>AMF Mart</title>
-  <link id="site-favicon" rel="icon" type="image/png" href="assets/logo/electrical-shop-black%20-%20Copy.png">
-  <link id="site-apple-touch-icon" rel="apple-touch-icon" href="assets/logo/electrical-shop-black%20-%20Copy.png">
+  <!-- One transparent PNG used for browser tabs and Apple touch icons. -->
+  <link id="site-favicon" rel="icon" type="image/png" sizes="256x256" href="/assets/logo/electrical-shop-black%20-%20Copy.png?v=20261118-24">
+  <link id="site-apple-touch-icon" rel="apple-touch-icon" href="/assets/logo/electrical-shop-black%20-%20Copy.png?v=20261118-24">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -5160,10 +5161,8 @@
         document.title = config.site.title || config.store.name || 'AMF Mart';
         var description = document.getElementById('site-description');
         if (description && config.site.description) description.content = config.site.description;
-        ['site-favicon', 'site-apple-touch-icon'].forEach(function (id) {
-          var iconLink = document.getElementById(id);
-          if (iconLink && config.assets.favicon) iconLink.href = config.assets.favicon;
-        });
+        // Favicon links are static in <head> to avoid replacing their cache-busted URLs.
+        // config.assets.favicon remains unchanged for other consumers.
       }
 
       function getMapUrl() {
