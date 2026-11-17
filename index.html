@@ -1304,6 +1304,7 @@
       font-weight: 700;
     }
     .detail-whatsapp-btn {
+      position: relative;
       color: var(--color-surface);
       background: var(--color-whatsapp);
       border-color: var(--color-whatsapp);
@@ -1330,7 +1331,8 @@
       border-color: var(--color-brand);
       transform: none;
     }
-    .detail-cart-btn::after {
+    .detail-cart-btn::after,
+    .detail-whatsapp-btn[data-tooltip]::after {
       content: attr(data-tooltip);
       position: absolute;
       top: auto;
@@ -1357,7 +1359,9 @@
       transition: opacity var(--transition-standard), transform var(--transition-standard);
     }
     .detail-cart-btn:hover::after,
-    .detail-cart-btn:focus-visible::after {
+    .detail-cart-btn:focus-visible::after,
+    .detail-whatsapp-btn[data-tooltip]:hover::after,
+    .detail-whatsapp-btn[data-tooltip]:focus-visible::after {
       opacity: 1;
       transform: translateX(-50%) translateY(0);
     }
@@ -4448,41 +4452,7 @@
       color: var(--color-surface);
       transform: none;
     }
-    .cart-availability-note {
-      margin: 10px 0 0;
-      color: var(--color-muted);
-      font-size: 12px;
-      line-height: 1.5;
-    }
 
-    .site-action-notice {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      z-index: 120;
-      width: max-content;
-      max-width: min(480px, calc(100vw - 32px));
-      padding: 13px 18px;
-      background: var(--color-ink);
-      color: var(--color-on-dark);
-      border-left: 3px solid var(--color-brand);
-      border-radius: 10px;
-      box-shadow: 0 14px 36px rgba(24, 26, 32, .23);
-      font-size: 13px;
-      font-weight: 600;
-      line-height: 1.5;
-      text-align: center;
-      opacity: 0;
-      visibility: hidden;
-      pointer-events: none;
-      transform: translate(-50%, 12px);
-      transition: opacity var(--transition-standard), transform var(--transition-standard), visibility var(--transition-standard);
-    }
-    .site-action-notice.is-visible {
-      opacity: 1;
-      visibility: visible;
-      transform: translate(-50%, 0);
-    }
 
     /* Smaller, calmer not-found page replaces the oversized bordered card. */
     .not-found-page { padding: 0; }
@@ -4575,8 +4545,6 @@
       }
     }
     @media (max-width: 767px) {
-      .cart-availability-note { font-size: 11px; }
-      .site-action-notice { bottom: 86px; font-size: 12px; }
       .not-found-shell {
         min-height: 43svh;
         padding: 64px 8px 72px;
@@ -4662,12 +4630,452 @@
         line-height: 1.45;
       }
     }
+
+    /* V7 — Minimal, brand-consistent catalogue loading state. */
+    .loading-state {
+      min-height: clamp(240px, 42svh, 400px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 48px 20px;
+      background: var(--color-surface);
+      text-align: center;
+    }
+    .loading-spinner {
+      width: 34px;
+      height: 34px;
+      display: inline-block;
+      border: 3px solid var(--color-brand-soft);
+      border-top-color: var(--color-brand);
+      border-radius: 50%;
+      animation: amfLoadingSpin .9s linear infinite;
+    }
+    .loading-text {
+      color: var(--color-muted-strong);
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.5;
+      letter-spacing: .01em;
+    }
+    @keyframes amfLoadingSpin {
+      to { transform: rotate(360deg); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .loading-spinner { animation: none; border-color: var(--color-brand-soft); border-top-color: var(--color-brand); }
+    }
+    /* ============================================================
+       V8 — Responsive catalogue drawer and phone sort sheet.
+       Existing AMF category list, brand and technical controls are reused.
+       ============================================================ */
+    .catalogue-mobile-tools, .amf-drawer-header,
+    .amf-filter-backdrop, .amf-sort-backdrop, .amf-sort-sheet { display: none; }
+    html.amf-catalogue-modal-open { overflow-y: hidden; }
+
+    @media (max-width: 1199px) {
+      .products-page .catalogue-mobile-tools { display: grid; gap: 12px; margin-top: 20px; margin-bottom: 18px; }
+      .products-page .catalogue-mobile-tools .sort-wrap { width: 100%; }
+      .products-page .catalogue-mobile-tools .sort-label { display: block; }
+      .products-page .amf-inline-sort-wrap { display: none; min-width: 0; }
+      .products-page .amf-sort-sheet-trigger { display: flex; }
+      .products-page .catalogue-mobile-tools .search-wrap { width: 100%; }
+      .products-page .catalogue-mobile-tools .search-input {
+        width: 100%; min-height: 44px; padding: 9px 12px 9px 38px;
+        border: 1px solid var(--color-border); border-radius: var(--radius-sm);
+        background: var(--color-surface); color: var(--color-ink); font-size: 14px;
+      }
+      .products-page .catalogue-mobile-tools .search-wrap > .icon {
+        position: absolute; left: 12px; top: 14px; width: 15px; height: 15px;
+        color: var(--color-muted);
+      }
+      .products-page .amf-mobile-control-row { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px; }
+      .products-page .amf-control-btn {
+        display: flex; align-items: center; justify-content: center; gap: 8px;
+        width: 100%; min-width: 0; min-height: 44px; padding: 9px 12px;
+        border: 1px solid var(--color-border-control); border-radius: var(--radius-sm);
+        background: var(--color-surface); color: var(--color-muted-strong);
+        font-family: inherit; font-size: 13px; font-weight: 700; line-height: 1.25;
+        transition: color var(--transition-fast), background var(--transition-fast), border-color var(--transition-fast);
+      }
+      .products-page .amf-control-btn .icon { width: 15px; height: 15px; }
+      .products-page .amf-control-btn .amf-sort-label { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .products-page .amf-control-btn:focus-visible { border-color: var(--color-brand); }
+      @media (hover:hover) and (pointer:fine) {
+        .products-page .amf-control-btn:hover { border-color: var(--color-brand); color: var(--color-brand); background: var(--color-brand-tint); }
+      }
+      .products-page .amf-control-btn.is-touch-pressed,
+      .products-page .amf-control-btn:active { border-color: var(--color-brand); color: var(--color-brand); background: var(--color-brand-tint); }
+
+      .products-page .catalogue-layout { display: block; grid-template-columns: none; margin-top: 0; }
+      .products-page .catalogue-layout .catalogue-topbar { display: none; }
+      .products-page .catalogue-filter-column { position: static; z-index: auto; width: 0; height: 0; min-height: 0; margin: 0; }
+      .products-page .catalogue-filter-column:has(.filter-panel.is-open) { z-index: auto; }
+      .products-page .catalogue-filter-column > .filter-toggle { display: none; }
+      .products-page .amf-filter-backdrop, .products-page .amf-sort-backdrop {
+        display: block; position: fixed; inset: 0; z-index: 110;
+        width: 100%; height: 100%; border: 0; border-radius: 0;
+        background: rgba(12,15,21,.52); opacity: 0; visibility: hidden;
+        pointer-events: none; transition: opacity 240ms ease, visibility 240ms ease;
+      }
+      .products-page .amf-filter-backdrop.is-open,
+      .products-page .amf-sort-backdrop.is-open { opacity: 1; visibility: visible; pointer-events: auto; }
+      .products-page .filter-panel,
+      .products-page .filter-panel.is-open {
+        position: fixed; inset: 0 auto 0 0; z-index: 111; top: 0; right: auto; left: 0; bottom: 0;
+        width: min(400px,100%); height: 100vh; height: 100dvh;
+        max-height: none !important; padding: 0; margin: 0;
+        display: flex; flex-direction: column; overflow: hidden;
+        background: var(--color-surface); border: 0; border-right: 1px solid var(--color-border);
+        border-radius: 0; box-shadow: 12px 0 40px rgba(16,21,30,.13);
+        opacity: 1; visibility: hidden; pointer-events: none;
+        transform: translateX(-103%); transition: transform 280ms var(--ease-emphasized), visibility 280ms;
+      }
+      .products-page .filter-panel.is-open {
+        visibility: visible; pointer-events: auto; transform: translateX(0);
+      }
+      .products-page .amf-drawer-header {
+        display: flex; align-items: center; justify-content: space-between; flex: 0 0 auto;
+        min-height: 72px; padding: 0 20px; background: var(--color-surface);
+        border-bottom: 1px solid var(--color-border);
+      }
+      .products-page .amf-drawer-header h2 { margin: 0; color: var(--color-ink); font-size: 17px; font-weight: 800; letter-spacing: -.02em; text-transform: none; }
+      .products-page .amf-drawer-close, .products-page .amf-sheet-close {
+        width: 38px; height: 38px; display: grid; place-items: center;
+        padding: 0; border: 1px solid var(--color-border); border-radius: 9px;
+        background: transparent; color: var(--color-muted-strong);
+      }
+      .products-page .amf-drawer-close .icon, .products-page .amf-sheet-close .icon { width: 17px; height: 17px; }
+      .products-page .amf-drawer-close:hover, .products-page .amf-sheet-close:hover { color: var(--color-brand); border-color: var(--color-brand-border); }
+      .products-page .filter-panel .filter-card-combined {
+        display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0;
+        width: 100%; max-height: none; padding: 0; border: 0; border-radius: 0; box-shadow: none;
+      }
+      .products-page .filter-card-combined .filter-scroll-content {
+        flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain;
+        padding: 22px 20px 20px; scrollbar-gutter: auto;
+      }
+      .products-page .filter-card-combined .filter-category-list {
+        max-height: 276px; overflow-y: auto; padding-right: 2px;
+      }
+      /* Inline expanded menus avoid clipping inside the independently scrolled drawer. */
+      .products-page .filter-panel .filter-dropdown.is-open .filter-options,
+      .products-page .filter-panel .filter-dropdown.is-open.opens-up .filter-options {
+        position: static; top: auto; bottom: auto; margin-top: 6px; box-shadow: none;
+        max-height: min(30dvh, 220px); overflow-y: auto;
+      }
+      .products-page .filter-panel .filter-mobile-actions {
+        display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 10px;
+        flex: 0 0 auto; margin: 0; padding: 14px 20px calc(14px + env(safe-area-inset-bottom,0px));
+        background: var(--color-surface); border-top: 1px solid var(--color-border);
+      }
+      .products-page .filter-panel .filter-clear-desktop { display: none; }
+      .products-page .filter-panel .filter-mobile-actions .btn { width:100%; min-height:44px; font-size:13px; }
+
+      .products-page .amf-sort-backdrop { z-index: 120; }
+      .products-page .amf-sort-sheet {
+        position: fixed; z-index: 121; display: block; left: 50%; right: auto; bottom: 0;
+        width: min(460px,100%); padding: 10px 20px calc(18px + env(safe-area-inset-bottom,0px));
+        color: var(--color-ink); background: var(--color-surface);
+        border: 1px solid var(--color-border); border-radius: 18px 18px 0 0;
+        box-shadow: 0 -12px 32px rgba(16,21,30,.13);
+        visibility: hidden; pointer-events: none; transform: translate(-50%,105%);
+        transition: transform 280ms var(--ease-emphasized), visibility 280ms;
+      }
+      .products-page .amf-sort-sheet.is-open { visibility: visible; pointer-events: auto; transform: translate(-50%,0); }
+      .products-page .amf-sort-handle { width: 38px; height: 4px; margin: 0 auto 12px; background: var(--color-border-control); border-radius: 50px; }
+      .products-page .amf-sort-heading { display:flex; justify-content:space-between; align-items:center; margin-bottom: 12px; }
+      .products-page .amf-sort-heading h2 { font-size: 17px; margin: 0; text-transform: none; }
+      .products-page .amf-sheet-option {
+        display:flex; align-items:center; justify-content:flex-start; width:100%; min-height:36px;
+        padding:8px 9px; border:0; border-radius:7px; background:transparent;
+        color:var(--charcoal); font:inherit; font-size:13px; text-align:left;
+        transition: background-color var(--transition-fast), color var(--transition-fast);
+      }
+      .products-page .amf-sheet-option:last-child { margin-bottom: 0; }
+      .products-page .amf-sheet-option:hover,
+      .products-page .amf-sheet-option:focus-visible:not(.is-active) {
+        color: var(--color-muted-strong); background: var(--color-state-hover-surface); outline: none;
+      }
+      .products-page .amf-sheet-option.is-active {
+        color: var(--color-brand); background: var(--color-state-active-surface); font-weight: 800;
+      }
+    }
+    @media (min-width: 768px) and (max-width: 1199px) {
+      .products-page .amf-inline-sort-wrap { display: block; }
+      .products-page .amf-sort-sheet-trigger,
+      .products-page .amf-sort-backdrop,
+      .products-page .amf-sort-sheet { display: none; }
+      .products-page .amf-mobile-control-row { align-items: end; }
+      .products-page .amf-mobile-control-row > .amf-control-btn,
+      .products-page .amf-mobile-control-row > .amf-inline-sort-wrap { min-width: 0; }
+    }
+    @media (max-width: 767px) {
+      .products-page .filter-panel, .products-page .filter-panel.is-open {
+        width:100%; border-right:0; box-shadow:none;
+      }
+      .products-page .amf-drawer-header { min-height:68px; padding:0 16px; }
+      .products-page .filter-card-combined .filter-scroll-content { padding:18px 16px; }
+      .products-page .filter-panel .filter-mobile-actions { padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px)); }
+      .products-page .catalogue-mobile-tools { margin-top: 16px; }
+      .products-page .amf-inline-sort-wrap { display: none; }
+      .products-page .amf-sort-sheet-trigger { display: flex; }
+      .products-page .amf-sort-sheet { width:100%; }
+      .products-page .amf-sort-heading { display: none; }
+      .products-page .amf-sort-sheet { padding-top: 10px; }
+      @supports (-webkit-touch-callout:none) {
+        .products-page .catalogue-mobile-tools .search-input { font-size:16px; }
+      }
+    }
+    @media (prefers-reduced-motion:reduce) {
+      .products-page .filter-panel, .products-page .filter-panel.is-open,
+      .products-page .amf-filter-backdrop, .products-page .amf-sort-sheet,
+      .products-page .amf-sort-backdrop { transition:none !important; }
+    }
+
+    /* ============================================================
+       V10: unified search/sort control sizing and left-side filter.
+       Desktop catalogue retains its permanent sidebar. On smaller
+       layouts the filter and sort control ratio is 3:1.
+       ============================================================ */
+    .products-page .sort-label { display: none !important; }
+    .products-page .search-wrap {
+      position: relative;
+      display: block;
+      min-width: 0;
+    }
+    .products-page .search-input,
+    .products-page .catalogue-mobile-tools .search-input {
+      display: block;
+      width: 100%;
+      height: 44px;
+      min-height: 44px;
+      margin: 0;
+      padding: 9px 13px 9px 36px;
+      border: 1px solid var(--color-border);
+      border-radius: var(--radius-sm);
+      background: var(--color-surface);
+      color: var(--color-ink);
+      font-size: 14px;
+      font-weight: 500;
+      line-height: 1.45;
+      box-sizing: border-box;
+      -webkit-appearance: none;
+      appearance: none;
+    }
+    .products-page .search-wrap > .icon,
+    .products-page .catalogue-mobile-tools .search-wrap > .icon {
+      position: absolute;
+      top: 50%; left: 12px;
+      width: 14px; height: 14px;
+      transform: translateY(-50%);
+      pointer-events: none;
+      color: var(--color-muted);
+    }
+    .products-page .sort-wrap,
+    .products-page .sort-dropdown { min-width: 0; width: 100%; }
+    .products-page .sort-trigger,
+    .products-page .amf-sort-sheet-trigger {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 6px;
+      width: 100%;
+      height: 44px;
+      min-height: 44px;
+      padding: 9px 12px;
+      box-sizing: border-box;
+      border: 1px solid var(--color-border-control);
+      border-radius: var(--radius-sm);
+      background: var(--color-surface);
+      color: var(--color-ink);
+      font-family: var(--font-sans);
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.25;
+      text-align: left;
+    }
+    .products-page .sort-trigger .icon,
+    .products-page .amf-sort-sheet-trigger .icon {
+      width: 13px; height: 13px; flex: 0 0 auto;
+    }
+    .products-page .sort-trigger:hover,
+    .products-page .amf-sort-sheet-trigger:hover,
+    .products-page .sort-dropdown.is-open .sort-trigger,
+    .products-page .amf-sort-sheet-trigger.is-touch-pressed,
+    .products-page .amf-sort-sheet-trigger:active {
+      border-color: var(--color-brand);
+      background: var(--color-brand-tint);
+    }
+    .products-page .catalogue-topbar {
+      display: grid;
+      grid-template-columns: minmax(0,1fr) 176px;
+      align-items: center;
+      gap: 12px;
+    }
+    .products-page .amf-sort-compact-label { display: none; }
+    @media (max-width: 1199px) {
+      .products-page .catalogue-layout .catalogue-topbar { display: none; }
+      .products-page .catalogue-mobile-tools {
+        display: grid;
+        gap: 12px;
+      }
+      .products-page .amf-mobile-control-row {
+        display: grid;
+        grid-template-columns: minmax(0,3fr) minmax(0,1fr);
+        align-items: stretch;
+        gap: 10px;
+      }
+      .products-page .amf-mobile-control-row > .amf-control-btn,
+      .products-page .amf-mobile-control-row > .amf-inline-sort-wrap {
+        width: 100%; min-width: 0; margin: 0;
+      }
+      .products-page .amf-mobile-control-row > [data-action="toggle-filters"] {
+        justify-content: center;
+        height: 44px;
+      }
+      .products-page .amf-inline-sort-wrap,
+      .products-page .amf-inline-sort-wrap .sort-wrap,
+      .products-page .amf-inline-sort-wrap .sort-dropdown { height: 44px; }
+      .products-page .amf-mobile-control-row .amf-sort-sheet-trigger {
+        justify-content: space-between;
+      }
+      .products-page .amf-mobile-control-row .sort-trigger,
+      .products-page .amf-mobile-control-row .amf-sort-sheet-trigger {
+        padding-inline: 8px;
+      }
+    }
+    @media (min-width: 768px) and (max-width: 1199px) {
+      .products-page .amf-inline-sort-wrap { display: block; }
+      .products-page .amf-sort-sheet-trigger { display: none; }
+    }
+    @media (max-width: 767px) {
+      .products-page .amf-inline-sort-wrap { display: none; }
+      .products-page .amf-sort-sheet-trigger {
+        display: flex;
+        gap: 3px;
+        padding-inline: 6px !important;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .products-page .amf-sort-sheet-trigger .icon { width: 12px; height: 12px; }
+    }
+    /* Same breakpoint as the announcement bar: when it disappears at 560px,
+       Filters and Sort share the row evenly instead of the wider 3:1 ratio. */
+    @media (max-width: 560px) {
+      .products-page .amf-mobile-control-row {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+    @media (max-width: 359px) {
+      /* Both buttons now have half the width, so the selected sort label fits. */
+      .products-page .amf-sort-sheet-trigger { gap: 4px; padding-inline: 8px !important; }
+      .products-page .amf-sort-sheet-trigger .amf-sort-label { display: inline; }
+      .products-page .amf-sort-compact-label { display: none; }
+    }
+    @media (max-width: 767px) {
+      @supports (-webkit-touch-callout: none) {
+        .products-page .search-input,
+        .products-page .catalogue-mobile-tools .search-input { font-size: 16px; }
+      }
+    }
+    /* V12: Sort icon and interaction breakpoint follow the announcement bar.
+       561–1199px: 3/4 Filters + 1/4 inline dropdown.
+       <=560px: 1/2 Filters + 1/2 bottom sheet. */
+    .products-page .sort-trigger > .icon:first-child,
+    .products-page .amf-sort-sheet-trigger > .icon:first-child {
+      width: 15px;
+      height: 15px;
+      flex: 0 0 auto;
+      transform: none !important;
+    }
+    .products-page .sort-trigger .sort-trigger-label,
+    .products-page .amf-sort-sheet-trigger .amf-sort-label {
+      flex: 1 1 auto;
+      min-width: 0;
+      text-align: center;
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
+    @media (min-width: 561px) and (max-width: 1199px) {
+      .products-page .amf-inline-sort-wrap { display: block; }
+      .products-page .amf-sort-sheet-trigger,
+      .products-page .amf-sort-backdrop,
+      .products-page .amf-sort-sheet { display: none; }
+      .products-page .amf-mobile-control-row .sort-trigger { padding-inline: 8px; }
+      .products-page .amf-mobile-control-row .sort-trigger > .icon:first-child { width: 13px; height: 13px; }
+    }
+    @media (max-width: 560px) {
+      .products-page .amf-inline-sort-wrap { display: none; }
+      .products-page .amf-sort-sheet-trigger { display: flex; }
+      .products-page .amf-sort-sheet-trigger > .icon:first-child { width: 15px; height: 15px; }
+    }
+
+    /* V14 — Reuse desktop tooltip presentation on touch: same pseudo-element,
+       same text, same position. Nothing new is appended to the document. */
+    .nav-action.is-disabled.is-tooltip-visible::after {
+      opacity: 1;
+      transform: translateY(-50%) translateX(0);
+    }
+    .detail-cart-btn.is-tooltip-visible::after,
+    .detail-whatsapp-btn[data-tooltip].is-tooltip-visible::after {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+    /* On touch the hover:none reset must not hide the existing Cart tooltip. */
+    @media (hover: none) and (pointer: coarse) {
+      .detail-cart-btn.is-tooltip-visible::after,
+      .detail-whatsapp-btn[data-tooltip].is-tooltip-visible::after {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+      }
+    }
+
+    /* V14 — Search behaves like Contact form inputs: border-colour focus only.
+       No hover tint, background change, extra ring or shadow. */
+    .products-page .search-input:focus,
+    .products-page .search-input:focus-visible,
+    .products-page .catalogue-mobile-tools .search-input:focus,
+    .products-page .catalogue-mobile-tools .search-input:focus-visible {
+      border-color: var(--color-brand);
+      background: var(--color-surface);
+      outline: none;
+      box-shadow: none;
+    }
+
+    /* Input text previously jumped from 12px to 16px on narrow screens.
+       Scale the native 16px control visually to 12.8px: mobile Safari keeps
+       its anti-focus-zoom font size while the final control stays 52x36px. */
+    @media (max-width: 767px) {
+      .products-page .pagination-go input {
+        box-sizing: border-box;
+        width: 65px;
+        height: 45px;
+        min-height: 0;
+        margin: -4.5px -6.5px;
+        padding: 0 7px;
+        transform: scale(.8);
+        transform-origin: center;
+        font-size: 16px;
+        font-weight: 600;
+        line-height: 1.2;
+        text-align: center;
+        appearance: textfield;
+        -moz-appearance: textfield;
+      }
+      .products-page .pagination-go input::-webkit-inner-spin-button,
+      .products-page .pagination-go input::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+      }
+    }
   </style>
 </head>
 <body>
   <a class="skip-link" href="#main-content">Skip to content</a>
   <div id="app">
-    <div class="loading-state">Loading AMF Mart catalogue…</div>
+    <div class="loading-state" role="status" aria-live="polite"><span class="loading-spinner" aria-hidden="true"></span><span class="loading-text">Loading catalogue…</span></div>
   </div>
 
   <script>
@@ -4743,6 +5151,9 @@
       var visitorCount = null;
       var searchInputTimer = 0;
       var catalogueUpdateFrame = 0;
+      var filterDraftSnapshot = null;
+      var mobileSortOpen = false;
+      var overlayReturnFocus = null;
 
       var categoryLabels = {
         'primary-lighting': 'Lighting',
@@ -4844,6 +5255,7 @@
           search: '<circle cx="11" cy="11" r="6.5"></circle><path d="M16 16l4 4"></path>',
           filter: '<path d="M4 5h16l-6 7v5l-4 2v-7L4 5z"></path>',
           sliders: '<path d="M4 6h6M14 6h6M4 12h3M11 12h9M4 18h8M16 18h4"></path><circle cx="12" cy="6" r="2"></circle><circle cx="9" cy="12" r="2"></circle><circle cx="14" cy="18" r="2"></circle>',
+          sortLines: '<path d="M4 6h16M4 12h11M4 18h6"></path>',
           cart: '<path d="M4 5h2l1.3 9.1a2 2 0 0 0 2 1.7h7.7a2 2 0 0 0 1.9-1.4L20 8H7"></path><circle cx="10" cy="19" r="1"></circle><circle cx="17" cy="19" r="1"></circle>',
           user: '<circle cx="12" cy="8" r="3.2"></circle><path d="M5.5 20a6.5 6.5 0 0 1 13 0"></path>',
           bulb: '<path d="M9 18h6M10 21h4"></path><path d="M8.4 14.5A6 6 0 1 1 15.7 15c-.8.7-1.2 1.4-1.4 2.5h-4.6c-.2-1.2-.6-2-1.3-3z"></path><path d="M12 3v1M4.9 5.9l.7.7M19.1 5.9l-.7.7"></path>',
@@ -5079,7 +5491,7 @@
             '<div class="footer-bottom"><span>© 2026 AMF Mart. All rights reserved.</span><span class="footer-policy-links"><span class="footer-policy-item">Terms &amp; Conditions</span><span class="footer-policy-divider">|</span><span class="footer-policy-item">Privacy Policy</span></span></div>' +
           '</div>' +
         '</footer>' +
-        '<a class="floating-whatsapp' + (config.contact.whatsappUrl ? '' : ' is-disabled') + '" href="' + (config.contact.whatsappUrl || '#') + '" ' + (config.contact.whatsappUrl ? 'target="_blank" rel="noopener"' : 'aria-disabled="true"') + ' aria-label="Contact AMF Mart on WhatsApp"><span class="fab-label">Hubungi AMF Mart di WhatsApp</span>' + brandIcon('whatsapp') + '</a>';
+        '<a class="floating-whatsapp' + (config.contact.whatsappUrl ? '' : ' is-disabled') + '" href="' + (config.contact.whatsappUrl || '#') + '" ' + (config.contact.whatsappUrl ? 'target="_blank" rel="noopener"' : 'aria-disabled="true"') + ' aria-label="Contact AMF Mart on WhatsApp"><span class="fab-label">Chat with AMF Mart on WhatsApp</span>' + brandIcon('whatsapp') + '</a>';
       }
 
       function socialLink(name, href, label) {
@@ -5112,7 +5524,7 @@
         } else if (['home', 'products', 'product'].indexOf(route.name) === -1) {
           view = renderNotFound();
         } else if (!state.catalog) {
-          view = state.error ? renderLoadError() : '<div class="loading-state">Loading AMF Mart catalogue…</div>';
+          view = state.error ? renderLoadError() : '<div class="loading-state" role="status" aria-live="polite"><span class="loading-spinner" aria-hidden="true"></span><span class="loading-text">Loading catalogue…</span></div>';
         } else if (route.name === 'home') {
           view = renderHome();
         } else if (route.name === 'products') {
@@ -5164,7 +5576,16 @@
       }
 
       function renderLoadError() {
-        return '<div class="page-content"><div class="site-container"><div class="empty-state"><div class="empty-icon">' + icon('info') + '</div><h1>Products could not be loaded.</h1><p>Please try again.</p><button class="btn btn-primary" type="button" data-action="retry-catalogue">Try Again</button></div></div></div>';
+        /* Reuse the Not Found component so error pages feel part of the site. */
+        return '<div class="page-content not-found-page catalogue-unavailable-page"><div class="site-container">' +
+          '<section class="not-found-shell" aria-labelledby="catalogue-unavailable-title">' +
+          '<span class="not-found-mark" aria-hidden="true">' + icon('info') + '</span>' +
+          '<p class="not-found-kicker">CATALOGUE UNAVAILABLE</p>' +
+          '<h1 id="catalogue-unavailable-title">We couldn\'t load the catalogue.</h1>' +
+          '<p class="not-found-description">Please try again, or contact us if you need help finding a product.</p>' +
+          '<div class="not-found-actions"><button class="btn btn-primary" type="button" data-action="retry-catalogue">Try Again</button>' +
+          '<a class="btn btn-secondary" href="#/contact">Contact Us</a></div>' +
+          '</section></div></div>';
       }
 
       /* Shared not-found presentation for both unknown pages and missing products. */
@@ -5287,12 +5708,43 @@
       function renderProducts() {
         return '<div class="page-content products-page">' + renderBreadcrumb([{ label: 'Home', href: '#/' }, { label: 'Products' }]) +
           renderPageHeader(pageHeaders.products) +
-          '<div class="site-container"><div class="catalogue-layout">' +
-            '<div class="catalogue-filter-column"><button class="btn btn-secondary filter-toggle filter-action-secondary" type="button" data-action="toggle-filters" aria-expanded="' + (state.filterOpen ? 'true' : 'false') + '" aria-controls="catalogue-filter-panel">Filter Catalogue ' + icon('sliders') + '</button><aside class="filter-panel' + (state.filterOpen ? ' is-open' : '') + '" id="catalogue-filter-panel">' + renderFilters() + '</aside></div>' +
-            '<section aria-labelledby="catalogue-results-heading"><div class="catalogue-topbar"><div class="search-wrap">' + icon('search') + '<label class="sr-only" for="product-search">Search products</label><input class="search-input" id="product-search" type="search" value="' + escapeHtml(state.filters.query) + '" placeholder="Search products..." autocomplete="off"></div>' + renderSortDropdown() + '</div>' +
+          '<div class="site-container">' + renderMobileCatalogueTools() + '<div class="catalogue-layout">' +
+            '<div class="catalogue-filter-column">' +
+              '<button class="btn btn-secondary filter-toggle filter-action-secondary" type="button" data-action="toggle-filters" aria-expanded="' + (state.filterOpen ? 'true' : 'false') + '" aria-controls="catalogue-filter-panel">Filter Catalogue ' + icon('sliders') + '</button>' +
+              '<button class="amf-filter-backdrop" type="button" data-action="dismiss-filters" aria-label="Close filters without applying"></button>' +
+              '<aside class="filter-panel' + (state.filterOpen ? ' is-open' : '') + '" id="catalogue-filter-panel">' +
+                '<div class="amf-drawer-header"><h2 id="amf-filter-heading">Filters</h2><button class="amf-drawer-close" type="button" data-action="dismiss-filters" aria-label="Close filters without applying">' + icon('close') + '</button></div>' + renderFilters() + '</aside></div>' +
+            '<section aria-labelledby="catalogue-results-heading"><div class="catalogue-topbar"><div class="search-wrap">' + icon('search') + '<label class="sr-only" for="product-search">Search products</label><input class="search-input" id="product-search" data-product-search type="search" value="' + escapeHtml(state.filters.query) + '" placeholder="Search products..." autocomplete="off"></div>' + renderSortDropdown() + '</div>' +
               '<div id="catalogue-results">' + renderCatalogueResults() + '</div>' +
             '</section>' +
           '</div></div></div>';
+      }
+
+      function mobileSortLabelValue(value) {
+        if (value === 'name-asc') return 'A–Z';
+        if (value === 'name-desc') return 'Z–A';
+        return 'Relevance';
+      }
+
+      function renderMobileCatalogueTools() {
+        var options = [
+          { value: 'relevance', label: 'Relevance' },
+          { value: 'name-asc', label: 'Name A–Z' },
+          { value: 'name-desc', label: 'Name Z–A' }
+        ];
+        return '<div class="catalogue-mobile-tools">' +
+          '<div class="search-wrap">' + icon('search') + '<label class="sr-only" for="product-search-mobile">Search products</label>' +
+          '<input class="search-input" id="product-search-mobile" data-product-search type="search" value="' + escapeHtml(state.filters.query) + '" placeholder="Search products..." autocomplete="off"></div>' +
+          '<div class="amf-mobile-control-row"><button class="amf-control-btn" type="button" data-action="toggle-filters" aria-expanded="false" aria-controls="catalogue-filter-panel">' + icon('sliders') + '<span>Filters</span></button>' +
+          '<div class="amf-inline-sort-wrap">' + renderSortDropdown('mobile-inline') + '</div>' +
+          '<button class="amf-control-btn amf-sort-sheet-trigger" type="button" data-action="toggle-mobile-sort" aria-label="Sort products: ' + escapeHtml(sortLabel(state.filters.sort)) + '" aria-expanded="false" aria-controls="amf-sort-sheet">' + icon('sortLines') + '<span class="amf-sort-label">' + escapeHtml(mobileSortLabelValue(state.filters.sort)) + '</span><span class="amf-sort-compact-label" aria-hidden="true">Sort</span>' + icon('chevronDown') + '</button></div>' +
+          '<button class="amf-sort-backdrop" type="button" data-action="dismiss-mobile-sort" aria-label="Close sort choices"></button>' +
+          '<section class="amf-sort-sheet" id="amf-sort-sheet" aria-label="Sort options">' +
+          '<div class="amf-sort-handle" aria-hidden="true"></div><div class="amf-sort-heading"><h2 id="amf-sort-heading">Sort by</h2><button class="amf-sheet-close" type="button" data-action="dismiss-mobile-sort" aria-label="Close sort choices">' + icon('close') + '</button></div>' +
+          options.map(function (option) {
+            var isActive = state.filters.sort === option.value;
+            return '<button class="amf-sheet-option' + (isActive ? ' is-active' : '') + '" type="button" data-mobile-sort-value="' + option.value + '" aria-pressed="' + (isActive ? 'true' : 'false') + '">' + escapeHtml(option.label) + '</button>';
+          }).join('') + '</section></div>';
       }
 
       function renderCatalogueResults() {
@@ -5313,15 +5765,15 @@
           if (filterPanel) {
             var existingScroller = filterPanel.querySelector('.filter-scroll-content');
             var filterScrollTop = existingScroller ? existingScroller.scrollTop : filterPanel.scrollTop;
-            filterPanel.innerHTML = renderFilters();
+            var oldContent = filterPanel.querySelector('.filter-card-combined');
+            if (oldContent) oldContent.outerHTML = renderFilters();
             var nextScroller = filterPanel.querySelector('.filter-scroll-content');
             if (nextScroller) nextScroller.scrollTop = filterScrollTop;
           }
         }
-        var searchInput = document.getElementById('product-search');
-        if (searchInput && searchInput.value !== state.filters.query) {
-          searchInput.value = state.filters.query;
-        }
+        document.querySelectorAll('[data-product-search]').forEach(function (searchInput) {
+          if (searchInput.value !== state.filters.query) searchInput.value = state.filters.query;
+        });
         document.querySelectorAll('[data-filter-category]').forEach(function (option) {
           var selected = state.filters.category === (option.dataset.filterCategory || 'all');
           option.classList.toggle('is-active', selected);
@@ -5337,15 +5789,22 @@
           }).filter(Boolean);
           brandTriggerLabel.textContent = selectedBrands.length === 0 ? 'All brands' : (selectedBrands.length === 1 ? selectedBrands[0].name : selectedBrands.length + ' brands selected');
         }
-        var sortTriggerLabel = document.querySelector('.sort-trigger-label');
-        if (sortTriggerLabel) sortTriggerLabel.textContent = sortLabel(state.filters.sort);
+        document.querySelectorAll('.sort-trigger-label').forEach(function (label) { label.textContent = sortLabel(state.filters.sort); });
+        document.querySelectorAll('[data-sort-trigger]').forEach(function (trigger) { trigger.setAttribute('aria-label', 'Sort products: ' + sortLabel(state.filters.sort)); });
+        var mobileSortLabel = document.querySelector('.amf-sort-label');
+        if (mobileSortLabel) mobileSortLabel.textContent = mobileSortLabelValue(state.filters.sort);
+        var mobileSortTrigger = document.querySelector('[data-action="toggle-mobile-sort"]');
+        if (mobileSortTrigger) mobileSortTrigger.setAttribute('aria-label', 'Sort products: ' + sortLabel(state.filters.sort));
+        document.querySelectorAll('[data-mobile-sort-value]').forEach(function (option) {
+          var active = option.dataset.mobileSortValue === state.filters.sort;
+          option.classList.toggle('is-active', active);
+          option.setAttribute('aria-pressed', active ? 'true' : 'false');
+          option.textContent = sortLabel(option.dataset.mobileSortValue);
+        });
         document.querySelectorAll('[data-sort-value]').forEach(function (option) {
           var isActive = state.filters.sort === option.dataset.sortValue;
           option.classList.toggle('is-active', isActive);
           option.setAttribute('aria-selected', isActive ? 'true' : 'false');
-          var check = option.querySelector('.sort-option-check');
-          if (isActive && !check) option.insertAdjacentHTML('beforeend', '<span class="sort-option-check" aria-hidden="true">✓</span>');
-          if (!isActive && check) check.remove();
         });
         var technicalKeyLabel = document.querySelector('[data-filter-dropdown-kind="tech-key-trigger"] .filter-trigger-label');
         var technicalValueLabel = document.querySelector('[data-filter-dropdown-kind="tech-value-trigger"] .filter-trigger-label');
@@ -5443,15 +5902,19 @@
         return 'Relevance';
       }
 
-      function renderSortDropdown() {
+      function renderSortDropdown(idPrefix) {
         var options = [
           { value: 'relevance', label: 'Relevance' },
           { value: 'name-asc', label: 'Name A–Z' },
           { value: 'name-desc', label: 'Name Z–A' }
         ];
-        return '<div class="sort-wrap"><span class="sort-label" id="sort-products-label">Sort by</span><div class="sort-dropdown" data-sort-dropdown><button class="sort-trigger" type="button" data-sort-trigger aria-haspopup="listbox" aria-expanded="false" aria-controls="sort-products-options" aria-labelledby="sort-products-label sort-products-value"><span class="sort-trigger-label" id="sort-products-value">' + escapeHtml(sortLabel(state.filters.sort)) + '</span>' + icon('chevronDown') + '</button><div class="sort-options" id="sort-products-options" role="listbox" aria-labelledby="sort-products-label">' + options.map(function (option) {
+        idPrefix = idPrefix || 'products';
+        var labelId = 'sort-' + idPrefix + '-label';
+        var valueId = 'sort-' + idPrefix + '-value';
+        var optionsId = 'sort-' + idPrefix + '-options';
+        return '<div class="sort-wrap"><div class="sort-dropdown" data-sort-dropdown><button class="sort-trigger" type="button" data-sort-trigger aria-label="Sort products: ' + escapeHtml(sortLabel(state.filters.sort)) + '" aria-haspopup="listbox" aria-expanded="false" aria-controls="' + optionsId + '">' + icon('sortLines') + '<span class="sort-trigger-label" id="' + valueId + '">' + escapeHtml(sortLabel(state.filters.sort)) + '</span>' + icon('chevronDown') + '</button><div class="sort-options" id="' + optionsId + '" role="listbox" aria-label="Sort products">' + options.map(function (option) {
           var isActive = state.filters.sort === option.value;
-          return '<button class="sort-option' + (isActive ? ' is-active' : '') + '" type="button" role="option" data-sort-value="' + option.value + '" aria-selected="' + (isActive ? 'true' : 'false') + '">' + option.label + (isActive ? '<span class="sort-option-check" aria-hidden="true">✓</span>' : '') + '</button>';
+          return '<button class="sort-option' + (isActive ? ' is-active' : '') + '" type="button" role="option" data-sort-value="' + option.value + '" aria-selected="' + (isActive ? 'true' : 'false') + '">' + option.label + '</button>';
         }).join('') + '</div></div></div>';
       }
 
@@ -5586,8 +6049,8 @@
         ].concat(specs.filter(function (entry) { return entry[0] !== 'unit_of_measure'; }).slice(0, 1).map(function (entry) {
           return { label: formatLabel(entry[0]), value: String(entry[1]) };
         }));
-        var whatsapp = config.contact.whatsappUrl ? '<a class="btn detail-whatsapp-btn" href="' + escapeHtml(config.contact.whatsappUrl) + '" target="_blank" rel="noopener">' + brandIcon('whatsapp') + ' WhatsApp</a>' : '<button class="btn btn-disabled" type="button" disabled>WhatsApp unavailable</button>';
-        var cartButton = '<button class="btn detail-cart-btn" type="button" data-disabled-link data-disabled-message="Cart belum tersedia. Buat masa ini, pembelian hanya di kedai (walk-in)." data-tooltip="Cart is not available yet." aria-disabled="true" aria-describedby="cart-availability-note">Add to Cart</button>';
+        var whatsapp = config.contact.whatsappUrl ? '<a class="btn detail-whatsapp-btn" href="' + escapeHtml(config.contact.whatsappUrl) + '" target="_blank" rel="noopener" data-tooltip="Chat with AMF Mart on WhatsApp">' + brandIcon('whatsapp') + ' WhatsApp</a>' : '<button class="btn btn-disabled" type="button" disabled>WhatsApp unavailable</button>';
+        var cartButton = '<button class="btn detail-cart-btn" type="button" data-disabled-link data-disabled-message="Cart belum tersedia. Buat masa ini, pembelian hanya di kedai (walk-in)." data-tooltip="Cart is not available yet." aria-disabled="true">Add to Cart</button>';
         var description = product.description || product.short_description || '';
         return '<div class="page-content product-detail-page">' + renderBreadcrumb([
           { label: 'Home', href: '#/' },
@@ -5595,7 +6058,7 @@
           { label: shortCategoryName(product.category_id), href: '#/products?category=' + encodeURIComponent(product.category_id) },
           { label: product.name, title: product.name }
         ]) + '<div class="site-container">' +
-          '<div class="detail-layout"><div class="detail-image">' + (image ? '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(product.images[0].alt || product.name) + '" onerror="var p=this.parentElement; this.remove(); if(p){p.classList.add(\'image-fallback\');p.textContent=\'Image unavailable\'}">' : '<span class="image-fallback">Image unavailable</span>') + '</div><div class="detail-panel"><div class="detail-kicker">' + escapeHtml(categoryName(product.category_id)) + '</div><h1 class="detail-title">' + escapeHtml(product.name) + '</h1><div class="detail-model">' + escapeHtml([product.brand, product.model].filter(Boolean).join(' · ')) + '</div><div class="detail-facts">' + facts.map(function (fact) { return '<div class="detail-fact"><span class="detail-fact-label">' + escapeHtml(fact.label) + '</span><span class="detail-fact-value" title="' + escapeHtml(fact.value) + '">' + escapeHtml(fact.value) + '</span></div>'; }).join('') + '</div><div class="detail-actions">' + whatsapp + cartButton + '</div><p id="cart-availability-note" class="cart-availability-note">Cart belum tersedia. Pembelian secara walk-in sahaja buat masa ini.</p></div></div>' +
+          '<div class="detail-layout"><div class="detail-image">' + (image ? '<img src="' + escapeHtml(image) + '" alt="' + escapeHtml(product.images[0].alt || product.name) + '" onerror="var p=this.parentElement; this.remove(); if(p){p.classList.add(\'image-fallback\');p.textContent=\'Image unavailable\'}">' : '<span class="image-fallback">Image unavailable</span>') + '</div><div class="detail-panel"><div class="detail-kicker">' + escapeHtml(categoryName(product.category_id)) + '</div><h1 class="detail-title">' + escapeHtml(product.name) + '</h1><div class="detail-model">' + escapeHtml([product.brand, product.model].filter(Boolean).join(' · ')) + '</div><div class="detail-facts">' + facts.map(function (fact) { return '<div class="detail-fact"><span class="detail-fact-label">' + escapeHtml(fact.label) + '</span><span class="detail-fact-value" title="' + escapeHtml(fact.value) + '">' + escapeHtml(fact.value) + '</span></div>'; }).join('') + '</div><div class="detail-actions">' + whatsapp + cartButton + '</div></div></div>' +
           (description ? '<section class="spec-section"><h2>Product Description</h2><p>' + escapeHtml(description) + '</p></section>' : '') +
           (specs.length ? '<section class="spec-section"><h2>Technical Specifications</h2><table class="spec-table"><tbody>' + specs.map(function (entry) { return '<tr><th scope="row">' + escapeHtml(formatLabel(entry[0])) + '</th><td>' + escapeHtml(entry[1]) + '</td></tr>'; }).join('') + '</tbody></table></section>' : '') +
           '<section class="related-section"><div class="section-heading"><div><h2>RELATED PRODUCTS</h2></div><a class="text-link related-category-header-link" href="#/products?category=' + encodeURIComponent(product.category_id) + '">VIEW CATEGORY ' + icon('arrow') + '</a></div>' + (related.length ? '<div class="product-grid related-grid">' + related.map(renderProductCard).join('') + '</div>' : '<div class="empty-state"><p>No related products available.</p></div>') + '<div class="home-section-link home-section-mobile-link related-category-link"><a class="text-link" href="#/products?category=' + encodeURIComponent(product.category_id) + '">VIEW CATEGORY ' + icon('arrow') + '</a></div></section>' +
@@ -5642,7 +6105,9 @@
         window.clearTimeout(searchInputTimer);
         state.filters = defaultCatalogueFilters();
         state.page = 1;
-        if (routeInfo().name === 'products') {
+        if (isFilterDraft()) {
+          refreshDraftFilterControls(true);
+        } else if (routeInfo().name === 'products') {
           updateCatalogueResults({ refreshFilters: true });
         } else {
           navigate('#/products');
@@ -5779,29 +6244,98 @@
         });
       }
 
-      // Keep the filter footer in the actual visible viewport, not below it.
+      /* V8: drawer changes are drafts until Apply. Restore on X/backdrop/Escape. */
+      function cloneCatalogueFilters(filters) {
+        return Object.assign({}, filters, { brands: filters.brands.slice() });
+      }
+      function isFilterDraft() {
+        return Boolean(state.filterOpen && filterDraftSnapshot && window.matchMedia('(max-width: 1199px)').matches);
+      }
+      function refreshDraftFilterControls(refresh) {
+        syncCatalogueControls({ refreshFilters: Boolean(refresh) });
+      }
+      function updateCatalogueOverlayLock() {
+        document.documentElement.classList.toggle('amf-catalogue-modal-open', state.filterOpen || mobileSortOpen);
+      }
       function sizeFilterPanel() {
         var panel = document.querySelector('.products-page .filter-panel');
-        if (!panel) return;
-        if (!window.matchMedia('(max-width: 900px)').matches) {
-          panel.style.maxHeight = '';
-          return;
-        }
-        if (!panel.classList.contains('is-open')) return;
-        var viewportHeight = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-        var availableHeight = viewportHeight - panel.getBoundingClientRect().top - 12;
-        panel.style.maxHeight = Math.max(96, Math.min(viewportHeight * .72, 560, availableHeight)) + 'px';
+        if (panel) panel.style.maxHeight = '';
       }
       window.addEventListener('resize', sizeFilterPanel);
-      if (window.visualViewport) window.visualViewport.addEventListener('resize', sizeFilterPanel);
 
-      function closeFilterPanel() {
+      function openFilterPanel(trigger) {
+        if (state.filterOpen || window.innerWidth >= 1200) return;
+        if (mobileSortOpen) closeMobileSort();
+        filterDraftSnapshot = { filters: cloneCatalogueFilters(state.filters), page: state.page };
+        overlayReturnFocus = trigger || document.querySelector('.amf-mobile-control-row [data-action="toggle-filters"]');
+        state.filterOpen = true;
+        var panel = document.querySelector('.products-page .filter-panel');
+        if (panel) {
+          panel.classList.add('is-open');
+          panel.setAttribute('role', 'dialog');
+          panel.setAttribute('aria-modal', 'true');
+          panel.setAttribute('aria-labelledby', 'amf-filter-heading');
+        }
+        var backdrop = document.querySelector('.amf-filter-backdrop');
+        if (backdrop) backdrop.classList.add('is-open');
+        document.querySelectorAll('[data-action="toggle-filters"]').forEach(function (button) { button.setAttribute('aria-expanded', 'true'); });
+        updateCatalogueOverlayLock();
+        var close = document.querySelector('.amf-drawer-close');
+        if (close) close.focus({ preventScroll: true });
+      }
+      function closeFilterPanel(applyChanges) {
         if (!state.filterOpen) return;
+        var shouldApply = Boolean(applyChanges);
+        if (!shouldApply && filterDraftSnapshot) {
+          state.filters = cloneCatalogueFilters(filterDraftSnapshot.filters);
+          state.page = filterDraftSnapshot.page;
+        }
+        filterDraftSnapshot = null;
         state.filterOpen = false;
-        var panel = document.querySelector('.filter-panel');
-        var toggle = document.querySelector('.filter-toggle');
-        if (panel) panel.classList.remove('is-open');
-        if (toggle) toggle.setAttribute('aria-expanded', 'false');
+        closeCustomDropdowns();
+        var panel = document.querySelector('.products-page .filter-panel');
+        if (panel) {
+          panel.classList.remove('is-open');
+          panel.removeAttribute('role');
+          panel.removeAttribute('aria-modal');
+          panel.removeAttribute('aria-labelledby');
+        }
+        var backdrop = document.querySelector('.amf-filter-backdrop');
+        if (backdrop) backdrop.classList.remove('is-open');
+        document.querySelectorAll('[data-action="toggle-filters"]').forEach(function (button) { button.setAttribute('aria-expanded', 'false'); });
+        updateCatalogueOverlayLock();
+        if (shouldApply) updateCatalogueResults({ refreshFilters: true });
+        else refreshDraftFilterControls(true);
+        if (overlayReturnFocus && overlayReturnFocus.isConnected) overlayReturnFocus.focus({ preventScroll: true });
+        overlayReturnFocus = null;
+      }
+      function openMobileSort(trigger) {
+        if (mobileSortOpen || window.innerWidth > 560) return;
+        if (state.filterOpen) closeFilterPanel(false);
+        mobileSortOpen = true;
+        overlayReturnFocus = trigger || document.querySelector('[data-action="toggle-mobile-sort"]');
+        var sheet = document.getElementById('amf-sort-sheet');
+        if (sheet) { sheet.classList.add('is-open'); sheet.setAttribute('role', 'dialog'); sheet.setAttribute('aria-modal', 'true'); }
+        var backdrop = document.querySelector('.amf-sort-backdrop');
+        if (backdrop) backdrop.classList.add('is-open');
+        var button = document.querySelector('[data-action="toggle-mobile-sort"]');
+        if (button) button.setAttribute('aria-expanded', 'true');
+        updateCatalogueOverlayLock();
+        var focusTarget = window.innerWidth <= 767 ? document.querySelector('.amf-sheet-option.is-active') || document.querySelector('.amf-sheet-option') : document.querySelector('.amf-sheet-close');
+        if (focusTarget) focusTarget.focus({ preventScroll: true });
+      }
+      function closeMobileSort() {
+        if (!mobileSortOpen) return;
+        mobileSortOpen = false;
+        var sheet = document.getElementById('amf-sort-sheet');
+        if (sheet) { sheet.classList.remove('is-open'); sheet.removeAttribute('role'); sheet.removeAttribute('aria-modal'); }
+        var backdrop = document.querySelector('.amf-sort-backdrop');
+        if (backdrop) backdrop.classList.remove('is-open');
+        var button = document.querySelector('[data-action="toggle-mobile-sort"]');
+        if (button) button.setAttribute('aria-expanded', 'false');
+        updateCatalogueOverlayLock();
+        if (overlayReturnFocus && overlayReturnFocus.isConnected) overlayReturnFocus.focus({ preventScroll: true });
+        overlayReturnFocus = null;
       }
 
       function positionFilterDropdown(dropdown, trigger) {
@@ -5821,6 +6355,24 @@
           positionFilterDropdown(dropdown, dropdown.querySelector('[data-filter-trigger]'));
         });
       }
+      function revealFilterDropdownInPanel(dropdown) {
+        if (!dropdown) return;
+        var panel = dropdown.closest('.filter-panel');
+        var scroller = panel ? panel.querySelector('.filter-scroll-content') : null;
+        var options = dropdown.querySelector('.filter-options');
+        if (!panel || !scroller || !options) return;
+        window.requestAnimationFrame(function () {
+          var scrollerRect = scroller.getBoundingClientRect();
+          var triggerRect = dropdown.getBoundingClientRect();
+          var optionsRect = options.getBoundingClientRect();
+          var padding = 14;
+          if (optionsRect.bottom > scrollerRect.bottom - padding) {
+            scroller.scrollTop += optionsRect.bottom - (scrollerRect.bottom - padding) + 8;
+          } else if (triggerRect.top < scrollerRect.top + padding) {
+            scroller.scrollTop -= (scrollerRect.top + padding) - triggerRect.top + 8;
+          }
+        });
+      }
 
       window.addEventListener('resize', repositionOpenFilterDropdowns);
       if (window.visualViewport) window.visualViewport.addEventListener('resize', repositionOpenFilterDropdowns);
@@ -5832,6 +6384,8 @@
       var touchPressSelector = '.home-category-card, .product-card, .btn, .page-button, .menu-toggle, .nav-link, .nav-action, .social-link, .contact-clean-method, .mobile-menu-utility, .filter-toggle, .filter-trigger, .sort-trigger, .filter-option, .filter-menu-option, .sort-option, .floating-whatsapp, .text-link';
       document.addEventListener('pointerdown', function (event) {
         if (event.pointerType !== 'touch' && event.pointerType !== 'pen') return;
+        var tooltip = event.target.closest('[data-tooltip]');
+        if (tooltip) showExistingTooltip(tooltip);
         var element = event.target.closest(touchPressSelector);
         if (!element || element.disabled || element.getAttribute('aria-disabled') === 'true') return;
         window.clearTimeout(touchPressTimer);
@@ -5851,32 +6405,37 @@
       document.addEventListener('pointerup', endTouchPress, { passive: true });
       document.addEventListener('pointercancel', endTouchPress, { passive: true });
 
-      var noticeHideTimer = 0;
-      function showSiteNotice(message) {
-        var notice = document.getElementById('site-action-notice');
-        if (!notice) {
-          notice = document.createElement('div');
-          notice.id = 'site-action-notice';
-          notice.className = 'site-action-notice';
-          notice.setAttribute('role', 'status');
-          notice.setAttribute('aria-live', 'polite');
-          document.body.appendChild(notice);
-        }
-        window.clearTimeout(noticeHideTimer);
-        notice.textContent = message;
-        notice.classList.add('is-visible');
-        noticeHideTimer = window.setTimeout(function () {
-          notice.classList.remove('is-visible');
-        }, 3800);
+      /* Use the exact tooltip already present on desktop for touch as well.
+         No extra toast, duplicate tooltip markup or bottom-of-screen notice. */
+      var existingTooltipTimer = 0;
+      var existingTooltipTarget = null;
+      function hideExistingTooltip() {
+        window.clearTimeout(existingTooltipTimer);
+        if (existingTooltipTarget) existingTooltipTarget.classList.remove('is-tooltip-visible');
+        existingTooltipTarget = null;
+      }
+      function showExistingTooltip(element) {
+        if (!element || !element.hasAttribute('data-tooltip')) return;
+        hideExistingTooltip();
+        existingTooltipTarget = element;
+        element.classList.add('is-tooltip-visible');
+        existingTooltipTimer = window.setTimeout(hideExistingTooltip, 2500);
       }
 
       document.addEventListener('click', function (event) {
         if (
-          state.filterOpen &&
+          state.filterOpen && window.innerWidth >= 1200 &&
           !event.target.closest('.filter-panel') &&
           !event.target.closest('.filter-toggle')
-        ) {
-          closeFilterPanel();
+        ) closeFilterPanel(false);
+        var mobileSortOption = event.target.closest('[data-mobile-sort-value]');
+        if (mobileSortOption) {
+          event.preventDefault();
+          state.filters.sort = mobileSortOption.dataset.mobileSortValue || 'relevance';
+          state.page = 1;
+          closeMobileSort();
+          updateCatalogueResults();
+          return;
         }
         var sortOption = event.target.closest('[data-sort-value]');
         if (sortOption) {
@@ -5900,7 +6459,8 @@
           }
           state.page = 1;
           closeCustomDropdowns();
-          updateCatalogueResults({ refreshFilters: filterKind === 'tech-key' });
+          if (isFilterDraft()) refreshDraftFilterControls(filterKind === 'tech-key');
+          else updateCatalogueResults({ refreshFilters: filterKind === 'tech-key' });
           return;
         }
         var customTrigger = event.target.closest('[data-sort-trigger], [data-filter-trigger]');
@@ -5912,7 +6472,10 @@
           if (customDropdown && shouldOpen) {
             customDropdown.classList.add('is-open');
             customTrigger.setAttribute('aria-expanded', 'true');
-            if (customDropdown.matches('[data-filter-dropdown]')) positionFilterDropdown(customDropdown, customTrigger);
+            if (customDropdown.matches('[data-filter-dropdown]')) {
+              positionFilterDropdown(customDropdown, customTrigger);
+              revealFilterDropdownInPanel(customDropdown);
+            }
           }
           return;
         }
@@ -5920,7 +6483,7 @@
         var disabledLink = event.target.closest('[data-disabled-link]');
         if (disabledLink) {
           event.preventDefault();
-          showSiteNotice(disabledLink.getAttribute('data-disabled-message') || 'Fungsi ini belum tersedia buat masa ini.');
+          showExistingTooltip(disabledLink);
           return;
         }
         if (
@@ -5948,15 +6511,21 @@
           setMenuState(false);
         } else if (target.dataset.action === 'toggle-filters') {
           event.preventDefault();
-          state.filterOpen = !state.filterOpen;
-          var filterPanel = document.querySelector('.filter-panel');
-          if (filterPanel) filterPanel.classList.toggle('is-open', state.filterOpen);
-          if (state.filterOpen) sizeFilterPanel();
-          target.setAttribute('aria-expanded', state.filterOpen ? 'true' : 'false');
+          if (state.filterOpen) closeFilterPanel(false);
+          else openFilterPanel(target);
+        } else if (target.dataset.action === 'dismiss-filters') {
+          event.preventDefault();
+          closeFilterPanel(false);
         } else if (target.dataset.action === 'apply-filters') {
           event.preventDefault();
-          closeCustomDropdowns();
-          closeFilterPanel();
+          closeFilterPanel(true);
+        } else if (target.dataset.action === 'toggle-mobile-sort') {
+          event.preventDefault();
+          if (mobileSortOpen) closeMobileSort();
+          else openMobileSort(target);
+        } else if (target.dataset.action === 'dismiss-mobile-sort') {
+          event.preventDefault();
+          closeMobileSort();
         } else if (target.dataset.action === 'clear-filters') {
           event.preventDefault();
           clearFilters();
@@ -5973,7 +6542,11 @@
           state.filters.techKey = '';
           state.filters.techValue = '';
           state.page = 1;
-          closeFilterPanel();
+          if (isFilterDraft()) {
+            refreshDraftFilterControls(true);
+            return;
+          }
+          closeFilterPanel(false);
           if (routeInfo().name === 'products') {
             updateCatalogueResults({ refreshFilters: true });
           } else {
@@ -5987,7 +6560,7 @@
       });
 
       document.addEventListener('input', function (event) {
-        if (event.target.id !== 'product-search') return;
+        if (!event.target.matches('[data-product-search]')) return;
         var query = event.target.value;
         window.clearTimeout(searchInputTimer);
         searchInputTimer = window.setTimeout(function () {
@@ -6019,11 +6592,30 @@
           if (target.checked && state.filters.brands.indexOf(brandId) === -1) state.filters.brands.push(brandId);
           if (!target.checked) state.filters.brands = state.filters.brands.filter(function (item) { return item !== brandId; });
           state.page = 1;
-          updateCatalogueResults();
+          if (isFilterDraft()) refreshDraftFilterControls(false);
+          else updateCatalogueResults();
         }
       });
 
       document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape' && (state.filterOpen || mobileSortOpen)) {
+          event.preventDefault();
+          if (mobileSortOpen) closeMobileSort();
+          else closeFilterPanel(false);
+          return;
+        }
+        if (event.key === 'Tab' && (state.filterOpen || mobileSortOpen)) {
+          var modal = state.filterOpen ? document.querySelector('.filter-panel') : document.querySelector('.amf-sort-sheet');
+          if (modal) {
+            var focusable = Array.from(modal.querySelectorAll('button:not([disabled]), input:not([disabled]), [tabindex]:not([tabindex="-1"])'))
+              .filter(function (element) { return element.getClientRects().length && getComputedStyle(element).visibility !== 'hidden'; });
+            if (focusable.length) {
+              var first = focusable[0], last = focusable[focusable.length - 1];
+              if (event.shiftKey && (document.activeElement === first || !modal.contains(document.activeElement))) { event.preventDefault(); last.focus(); }
+              else if (!event.shiftKey && (document.activeElement === last || !modal.contains(document.activeElement))) { event.preventDefault(); first.focus(); }
+            }
+          }
+        }
         var dropdownOption = event.target.closest && event.target.closest('.sort-option, .filter-menu-option[role="option"]');
         var trigger = event.target.closest && event.target.closest('[data-sort-trigger], [data-filter-trigger]');
         if (trigger && (event.key === 'ArrowDown' || event.key === 'ArrowUp')) {
@@ -6064,14 +6656,18 @@
         if (nextRoute.name === 'products') readCatalogueFiltersFromRoute(nextRoute);
         state.menuOpen = false;
         state.filterOpen = false;
+        filterDraftSnapshot = null;
+        mobileSortOpen = false;
+        document.documentElement.classList.remove('amf-catalogue-modal-open');
         document.body.classList.remove('menu-open');
         document.documentElement.classList.remove('menu-open');
-        window.clearTimeout(noticeHideTimer);
-        var visibleNotice = document.getElementById('site-action-notice');
-        if (visibleNotice) visibleNotice.classList.remove('is-visible');
+        hideExistingTooltip();
         renderRoute();
       });
       window.addEventListener('resize', function () {
+        if (window.innerWidth >= 1200 && state.filterOpen) closeFilterPanel(false);
+        // If a phone switches to a wider layout, the inline sort replaces the sheet.
+        if (window.innerWidth > 560 && mobileSortOpen) closeMobileSort();
         if (window.innerWidth > 850 && state.menuOpen) {
           setMenuState(false);
         }
@@ -6094,6 +6690,9 @@
 
       function loadCatalogue() {
         state.error = '';
+        if (!state.catalog && ['home', 'products', 'product'].indexOf(routeInfo().name) !== -1) {
+          renderRoute({ focus: false });
+        }
         if (window.location.protocol === 'file:') {
           loadFallbackCatalogue().then(function (catalog) {
             setCatalogue(catalog);
